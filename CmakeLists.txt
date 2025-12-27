@@ -1,0 +1,124 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(Concord_Collapse VERSION 1.0)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "" FORCE)
+
+# ---------------------------------------------
+# Collect engine sources (Azyris)
+# ---------------------------------------------
+file(GLOB_RECURSE AZYRIS_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/core/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Model/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/buffers/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Utils/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/graphics/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/PhysicsManager/*.cpp
+)
+
+# Build the Azyris engine as a static library
+add_library(Azyris STATIC ${AZYRIS_SOURCES})
+
+target_include_directories(Azyris PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Model
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/buffers
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/graphics
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/PhysicsManager
+)
+
+# ---------------------------------------------
+# Vendor sources — build into static lib
+# ---------------------------------------------
+file(GLOB_RECURSE VENDOR_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glad/src/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/ImGUI/*.cpp
+)
+
+add_library(vendors STATIC ${VENDOR_SOURCES})
+
+target_include_directories(vendors PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/assimp
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/glad/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/SDL3
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/Bullet
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/ImGUI
+)
+
+# ---------------------------------------------
+# Link vendor libs to Azyris (engine)
+# ---------------------------------------------
+target_link_libraries(Azyris PUBLIC vendors)
+
+
+set(VENDOR_LIB_DEBUG   ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug)
+set(VENDOR_LIB_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/release)
+
+
+
+target_link_libraries(Azyris PUBLIC
+    # SDL
+    $<$<CONFIG:Debug>:${VENDOR_LIB_DEBUG}/SDL3.lib>
+    $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/SDL3.lib>
+
+    # Assimp
+    $<$<CONFIG:Debug>:${VENDOR_LIB_DEBUG}/assimp-vc143-mtd.lib>
+    $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/assimp-vc143-mt.lib>
+
+    # Zlib
+    $<$<CONFIG:Debug>:${VENDOR_LIB_DEBUG}/zlibstaticd.lib>
+    $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/zlibstatic.lib>
+
+    # Bullet
+    $<$<CONFIG:Debug>:${VENDOR_LIB_DEBUG}/BulletCollision_Debug.lib>
+    $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/BulletCollision.lib>
+
+    $<$<CONFIG:Debug>:${VENDOR_LIB_DEBUG}/BulletDynamics_Debug.lib>
+    $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/BulletDynamics.lib>
+
+    $<$<CONFIG:Debug>:${VENDOR_LIB_DEBUG}/LinearMath_Debug.lib>
+    $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/LinearMath.lib>
+)
+
+
+# Link precompiled static libs (static CRT versions)
+#target_link_libraries(Azyris PUBLIC
+#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/SDL3.lib
+#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/assimp-vc143-mtd.lib
+#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/zlibstaticd.lib
+#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/BulletCollision_Debug.lib
+#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/BulletDynamics_Debug.lib
+#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/LinearMath_Debug.lib
+#)
+
+# ---------------------------------------------
+# Build the game executable (Concord)
+# ---------------------------------------------
+file(GLOB_RECURSE CONCORD_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Application/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelInspector/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Entity/*.cpp
+)
+
+add_executable(Concord ${CONCORD_SOURCES})
+
+target_include_directories(Concord PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Application
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelInspector
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Entity
+)
+
+# Concord links to Azyris (which links vendors)
+target_link_libraries(Concord PRIVATE Azyris)

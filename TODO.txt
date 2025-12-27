@@ -1,0 +1,15 @@
+Done:
+- make a drawcall counter (create your draw function that uses opengl draw function 
+			but which increases a counter and u reset it at the end) 
+			some global context stuff
+- make some debug renderer for physics engine
+- Relative path at runtime
+- if u think and are in mood, make some abstractions for that physics engine
+- if u want to add ImGUI, these conditions must be passed:
+		- make the debug renderer
+		- use docking
+		- have strong reasons to add ImGUI to the project
+- make a player maybe
+
+left to do:
+-work to the first level of the game
