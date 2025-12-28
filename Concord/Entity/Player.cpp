@@ -38,14 +38,8 @@ namespace Crd
     void Player::m_ProcessInput()
     {
 
-        if (Az::Input::GetKeyDown(AZ_Y))
-        {
-            m_Gamepad.FindGamepad();
-        }
-
         if (m_Gamepad.IsConnected())
         {
-            m_Gamepad.UpdateGamepads();
             m_Gamepad.UpdateButtonStates();
         }
         if (m_Gamepad.GetButtonDown(AZ_GPAD_BUTTON_DPAD_DOWN))

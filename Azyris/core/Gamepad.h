@@ -11,11 +11,7 @@ namespace Az
     {
     public:
         bool FindGamepad();
-        static inline void UpdateGamepads()
-        {
-            SDL_UpdateGamepads();
-        }
-        //
+
         float GetAxis(AZ_GamepadAxis axis);
 
         bool GetButton(AZ_GamepadButton button);
@@ -31,6 +27,8 @@ namespace Az
         inline uint32_t GetJoystickId() { return m_JoystickID; }
 
         inline SDL_Gamepad *GetGamepad() { return m_Gamepad; }
+
+        inline void DisableGamepad() { m_IsConnected = false; }
 
     private:
         SDL_JoystickID *m_JoystickPtr;

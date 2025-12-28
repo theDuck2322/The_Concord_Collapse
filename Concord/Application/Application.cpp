@@ -43,6 +43,18 @@ namespace Crd
                 m_AspectRatio = (float)w / (float)h;
                 m_Camera3D.SetProjection(m_FOV, m_AspectRatio, m_NearClip, m_FarClip);
             }
+
+            if (event->type == SDL_EVENT_GAMEPAD_ADDED)
+            {
+                m_Player.GetGamepad()->FindGamepad();
+            }
+            if (event->type == SDL_EVENT_GAMEPAD_REMOVED)
+            {
+                m_Player.GetGamepad()->DisableGamepad();
+                std::cout << "Gamepad disconected" << std::endl;
+            }
+
+            SDL_UpdateGamepads();
         }
 
         if (Az::Input::GetKeyDown(AZ_F))
@@ -160,6 +172,7 @@ namespace Crd
             /////// EVENT POLLING ///////////
             ProccessEvents();
             /////////////////////////////////
+
             m_Player.Update();
             // Step physics
             m_PhysicsManager.Update();
