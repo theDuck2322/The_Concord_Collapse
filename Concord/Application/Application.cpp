@@ -100,7 +100,7 @@ namespace Crd
         m_Shader.load("Azyris/shaders/test.vert", "Azyris/shaders/test.frag");
 
         Az::Model sphere, logicModel;
-        m_Scene.load("Azyris/Assets/transparency.glb");
+        m_Scene.load("Azyris/Assets/hm.glb");
         logicModel.load("Azyris/Assets/func.glb");
         sphere.load("Azyris/Assets/ball.glb");
 

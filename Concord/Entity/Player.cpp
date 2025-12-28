@@ -30,6 +30,7 @@ namespace Crd
     void Player::Update()
     {
         m_ProcessInput();
+        m_GroundCheck();
         m_ApplyMovement();
         m_UpdateCameraFromBody();
     }
@@ -47,6 +48,17 @@ namespace Crd
             m_Gamepad.UpdateGamepads();
             m_Gamepad.UpdateButtonStates();
         }
+        if (m_Gamepad.GetButtonDown(AZ_GPAD_BUTTON_DPAD_DOWN))
+        {
+            m_EnableExtraSpeed = !m_EnableExtraSpeed;
+        }
+
+        if (m_EnableExtraSpeed)
+        {
+            m_RunSpeed = 16 * m_WalkSpeed;
+        }
+        else
+            m_RunSpeed = 2 * m_WalkSpeed;
 
         // Reset movement input
         m_MovementInput = glm::vec3(0.0f);
@@ -136,16 +148,11 @@ namespace Crd
         }
     }
 
-    void Player::m_ApplyMovement()
+    void Player::m_GroundCheck()
     {
         if (!m_Body)
             return;
 
-        btVector3 velocity = m_Body->getLinearVelocity();
-
-        // --------------------
-        // Ground check
-        // --------------------
         m_IsGrounded = false;
         m_GroundNormal = btVector3(0, 1, 0);
 
@@ -176,15 +183,22 @@ namespace Crd
         if (m_IsGrounded)
         {
             m_GroundedTime = 0.0f;
+            m_Body->setFriction(0.5f); // Ground friction for slope
         }
         else
         {
             m_GroundedTime += dt;
+            m_Body->setFriction(0.0f); // Let the player slide in air
         }
+    }
 
-        // --------------------
-        // Desired movement
-        // --------------------
+    void Player::m_ApplyMovement()
+    {
+        if (!m_Body)
+            return;
+
+        btVector3 velocity = m_Body->getLinearVelocity();
+
         glm::vec3 wishDir = m_MovementInput;
         float wishSpeed = m_Speed;
 
@@ -192,12 +206,8 @@ namespace Crd
             wishDir = glm::normalize(wishDir);
 
         glm::vec3 wishVel = wishDir * wishSpeed;
-
         btVector3 desiredVel(wishVel.x, velocity.y(), wishVel.z);
 
-        // --------------------
-        // Project movement onto ground
-        // --------------------
         if (m_IsGrounded)
         {
             btVector3 n = m_GroundNormal;
@@ -208,9 +218,6 @@ namespace Crd
             desiredVel.setZ(lateral.z());
         }
 
-        // --------------------
-        // Apply velocity directly
-        // --------------------
         m_Body->setLinearVelocity(desiredVel);
     }
 

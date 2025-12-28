@@ -21,15 +21,18 @@ namespace Crd
     private:
         void m_ProcessInput();
         void m_UpdateCameraFromBody();
+        void m_GroundCheck();
         void m_ApplyMovement();
 
     private:
+        bool m_EnableExtraSpeed = false;
+
         float m_WalkSpeed = 5.0f;
-        float m_RunSpeed = 4 * m_WalkSpeed;
+        float m_RunSpeed = 2 * m_WalkSpeed;
 
         float m_Speed = 5.0f;
 
-        float m_Sensitivity = 100.0f;
+        float m_Sensitivity = 140.0f;
         float m_JumpForce = 10.0f;
         float m_CameraHeight = 1.8f; // Camera at eye level (1.8m)
 

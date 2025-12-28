@@ -28,6 +28,10 @@ namespace Az
 
         inline bool IsConnected() { return m_IsConnected; }
 
+        inline uint32_t GetJoystickId() { return m_JoystickID; }
+
+        inline SDL_Gamepad *GetGamepad() { return m_Gamepad; }
+
     private:
         SDL_JoystickID *m_JoystickPtr;
         SDL_JoystickID m_JoystickID;
