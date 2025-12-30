@@ -19,7 +19,8 @@ namespace Crd
         inline btRigidBody *GetRigidbody() { return m_Body; }
 
     private:
-        void m_ProcessInput();
+        void m_ProcessInputGamepad();
+        void m_ProcessInputKeyboard();
         void m_UpdateCameraFromBody();
         void m_GroundCheck();
         void m_ApplyMovement();
@@ -32,7 +33,8 @@ namespace Crd
 
         float m_Speed = 5.0f;
 
-        float m_Sensitivity = 140.0f;
+        float m_GpadSensitivity = 140.0f;
+        float m_MouseSensitivity = 20.0f;
         float m_JumpForce = 10.0f;
         float m_CameraHeight = 1.8f; // Camera at eye level (1.8m)
 

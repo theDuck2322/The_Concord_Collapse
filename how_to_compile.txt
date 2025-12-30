@@ -1,7 +1,9 @@
 cd build
 cmake .. -G "Visual Studio 17 2022" -A x64
-cmake --build . --config Debug // for debug
-cmake --build . --config Release // for release
+ // for debug
+cmake --build . --config Debug
+// for release
+cmake --build . --config Release 
 
 ./Debug/Concord.exe // run compiled program in Debug mode
 ./Release/Concord.exe // run compiled program in Release mode

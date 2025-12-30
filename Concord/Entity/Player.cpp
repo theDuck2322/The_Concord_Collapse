@@ -29,15 +29,18 @@ namespace Crd
 
     void Player::Update()
     {
-        m_ProcessInput();
+        if (m_Gamepad.IsConnected())
+            m_ProcessInputGamepad();
+
+        m_ProcessInputKeyboard();
+
         m_GroundCheck();
         m_ApplyMovement();
         m_UpdateCameraFromBody();
     }
 
-    void Player::m_ProcessInput()
+    void Player::m_ProcessInputGamepad()
     {
-
         if (m_Gamepad.IsConnected())
         {
             m_Gamepad.UpdateButtonStates();
@@ -46,7 +49,7 @@ namespace Crd
         {
             m_EnableExtraSpeed = !m_EnableExtraSpeed;
         }
-
+        // cheats
         if (m_EnableExtraSpeed)
         {
             m_RunSpeed = 16 * m_WalkSpeed;
@@ -92,8 +95,8 @@ namespace Crd
             float currentPitch = m_CameraPtr->GetPitch();
 
             // Apply offsets
-            currentYaw += m_Gamepad.GetAxis(AZ_GPAD_AXIS_RIGHTX) * deltaTime * m_Sensitivity;
-            currentPitch -= m_Gamepad.GetAxis(AZ_GPAD_AXIS_RIGHTY) * deltaTime * m_Sensitivity;
+            currentYaw += m_Gamepad.GetAxis(AZ_GPAD_AXIS_RIGHTX) * deltaTime * m_GpadSensitivity;
+            currentPitch -= m_Gamepad.GetAxis(AZ_GPAD_AXIS_RIGHTY) * deltaTime * m_GpadSensitivity;
 
             // Clamp
             currentPitch = glm::clamp(currentPitch, -89.0f, 89.0f);
@@ -131,6 +134,115 @@ namespace Crd
 
         m_Speed = m_WalkSpeed;
         if (m_Gamepad.GetButton(AZ_GPAD_BUTTON_LEFT_STICK))
+        {
+            m_Speed = m_RunSpeed;
+        }
+
+        if (m_IsGrounded && glm::length(m_MovementInput) < 0.1f)
+        {
+            btVector3 v = m_Body->getLinearVelocity();
+            m_Body->setLinearVelocity(btVector3(0, v.y(), 0));
+        }
+    }
+
+    void Player::m_ProcessInputKeyboard()
+    {
+        // cheats
+        if (Az::Input::GetKeyDown(AZ_L))
+        {
+            m_EnableExtraSpeed = !m_EnableExtraSpeed;
+        }
+
+        if (m_EnableExtraSpeed)
+        {
+            m_RunSpeed = 16 * m_WalkSpeed;
+        }
+        else
+            m_RunSpeed = 2 * m_WalkSpeed;
+
+        m_MovementInput = glm::vec3(0.0f);
+
+        if (Az::Input::GetKey(AZ_W) && !Az::Input::GetKey(AZ_S))
+        {
+            // Forward relative to camera
+            glm::vec3 forward = m_CameraPtr->GetForward();
+            forward.y = 0; // Keep movement horizontal
+            forward = glm::normalize(forward);
+            m_MovementInput += forward * (float)Az::Input::GetKey(AZ_W);
+        }
+        if (Az::Input::GetKey(AZ_S) && !Az::Input::GetKey(AZ_W))
+        {
+            // Backward relative to camera
+            glm::vec3 forward = m_CameraPtr->GetForward();
+            forward.y = 0; // Keep movement horizontal
+            forward = glm::normalize(forward);
+            m_MovementInput += forward * -(float)Az::Input::GetKey(AZ_S);
+        }
+        if (Az::Input::GetKey(AZ_A) && !Az::Input::GetKey(AZ_D))
+        {
+            // Right/left relative to camera
+            glm::vec3 right = m_CameraPtr->GetRight();
+            right.y = 0; // Keep movement horizontal
+            right = glm::normalize(right);
+            m_MovementInput += right * -(float)Az::Input::GetKey(AZ_A);
+        }
+        if (Az::Input::GetKey(AZ_D) && !Az::Input::GetKey(AZ_A))
+        {
+            // Right/left relative to camera
+            glm::vec3 right = m_CameraPtr->GetRight();
+            right.y = 0; // Keep movement horizontal
+            right = glm::normalize(right);
+            m_MovementInput += right * (float)Az::Input::GetKey(AZ_D);
+        }
+
+        // Normalize diagonal movement
+        if (glm::length(m_MovementInput) > 1.0f)
+        {
+            m_MovementInput = glm::normalize(m_MovementInput);
+        }
+
+        // Mouse rotation
+        float deltaTime = Az::Timer::fDeltaTime;
+        // Get current camera rotation
+        float currentYaw = m_CameraPtr->GetYaw();
+        float currentPitch = m_CameraPtr->GetPitch();
+
+        // Apply offsets
+        currentYaw += Az::Input::GetMouseDeltaX() * deltaTime * m_MouseSensitivity;
+        currentPitch -= Az::Input::GetMouseDeltaY() * deltaTime * m_MouseSensitivity;
+        // Clamp
+        currentPitch = glm::clamp(currentPitch, -89.0f, 89.0f);
+        // Set new rotation
+        m_CameraPtr->SetRotation(currentYaw, currentPitch);
+
+        if (Az::Input::GetKey(AZ_SPACE) &&
+            (m_IsGrounded || m_GroundedTime <= m_CoyoteTime))
+        {
+            m_GroundedTime = m_CoyoteTime + 1.0f; // prevent double jump
+
+            // --- Reset vertical velocity ---
+            btVector3 vel = m_Body->getLinearVelocity();
+            vel.setY(0); // cancel any upward/downward motion
+            m_Body->setLinearVelocity(vel);
+
+            // --- Apply jump impulse ---
+            btVector3 jumpImpulse;
+            if (m_IsGrounded)
+            {
+                // Jump along ground normal (for slopes)
+                jumpImpulse = m_GroundNormal * m_JumpForce;
+            }
+            else
+            {
+                // Coyote jump → vertical only
+                jumpImpulse = btVector3(0, m_JumpForce, 0);
+            }
+
+            m_Body->applyCentralImpulse(jumpImpulse);
+        }
+
+        m_Speed = m_WalkSpeed;
+        if (Az::Input::GetKey(AZ_LSHIFT))
         {
             m_Speed = m_RunSpeed;
         }

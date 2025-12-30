@@ -71,6 +71,12 @@ namespace Crd
         {
             m_DebugDraw = !m_DebugDraw;
         }
+
+        if (Az::Input::GetKeyDown(AZ_F1))
+        {
+            bool toggle = SDL_GetWindowRelativeMouseMode(m_Window.GetWindow());
+            SDL_SetWindowRelativeMouseMode(m_Window.GetWindow(), !toggle);
+        }
     }
 
     struct DebugLineCollector : public btTriangleCallback
@@ -100,6 +106,7 @@ namespace Crd
         {
             return true;
         }
+
         ImGuiLayer::Init(m_Window.GetWindow(), m_Window.GetGLContext());
 
         Az::Input::Init();
@@ -146,6 +153,7 @@ namespace Crd
 
         auto boxrb = m_PhysicsManager.CreateBox(1.0f, glm::vec3(3, 2, 10), glm::vec3(1));
         boxrb->setFriction(1.0f);
+        boxrb->setDamping(0.5f, 0.5f);
 
         Crd::Object::Prop::SetPhysicsManagerPtr(&m_PhysicsManager);
         Crd::Object::Prop prop;
@@ -154,8 +162,7 @@ namespace Crd
         prop.SetRigidBody(boxrb);
         prop.Init();
 
-        std::cout
-            << "Data processed: " << std::endl;
+        std::cout << "Data processed: " << std::endl;
         Crd::MdIsp::ModelInspector Inspector;
         Inspector.CheckMeta(logicModel);
         auto data = Inspector.GetData();
@@ -166,17 +173,15 @@ namespace Crd
         m_Player.Init(&m_Camera3D, &m_PhysicsManager);
 
         m_Renderer.SetShader(&m_Shader);
-        // -------------------- Main Loop --------------------
+        //  -------------------- Main Loop --------------------
         while (!m_Window.ShouldClose())
         {
-
             Az::Timer::UpdateTime();
             Az::Input::Update();
 
             /////// EVENT POLLING ///////////
             ProccessEvents();
             /////////////////////////////////
-
             m_Player.Update();
             // Step physics
             m_PhysicsManager.Update(1.0f / 60.0f, 6, 1.0f / 60.0f);
