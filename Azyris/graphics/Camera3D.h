@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <Utils/Shapes.h>
 
 namespace Az
@@ -51,8 +52,11 @@ namespace Az
             return m_Position + glm::vec3(m_Front.x, m_Front.y, -m_Front.z) * length;
         }
 
+        glm::quat GetQuaternion();
+
     private:
-        void RecalculateViewMatrix();
+        void
+        RecalculateViewMatrix();
         void UpdateVectors();
 
         void GenerateFrustum();

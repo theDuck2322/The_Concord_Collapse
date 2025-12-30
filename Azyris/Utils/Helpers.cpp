@@ -144,4 +144,8 @@ namespace Az
         return glm::quat(qt.getW(), qt.getX(), qt.getY(), qt.getZ());
     }
 
+    btQuaternion ConvertGLMQuat(const glm::quat &quat)
+    {
+        return btQuaternion(quat.x, quat.y, quat.z, quat.w);
+    }
 }

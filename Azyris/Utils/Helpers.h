@@ -64,4 +64,6 @@ namespace Az
     glm::vec3 ConvertBTVec3(const btVector3 &vec);
 
     glm::quat ConvertBTQuat(const btQuaternion &qt);
+
+    btQuaternion ConvertGLMQuat(const glm::quat &quat);
 };

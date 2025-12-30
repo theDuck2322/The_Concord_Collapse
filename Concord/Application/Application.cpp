@@ -145,10 +145,17 @@ namespace Crd
         Az::Model cube("Azyris/Assets/bx.glb");
 
         auto boxrb = m_PhysicsManager.CreateBox(1.0f, glm::vec3(3, 2, 10), glm::vec3(1));
-        boxrb->setFriction(0);
-        boxrb->setGravity(btVector3(0, 0, 0));
+        boxrb->setFriction(1.0f);
 
-        std::cout << "Data processed: " << std::endl;
+        Crd::Object::Prop::SetPhysicsManagerPtr(&m_PhysicsManager);
+        Crd::Object::Prop prop;
+
+        prop.SetMesh(&cube.meshes[0]);
+        prop.SetRigidBody(boxrb);
+        prop.Init();
+
+        std::cout
+            << "Data processed: " << std::endl;
         Crd::MdIsp::ModelInspector Inspector;
         Inspector.CheckMeta(logicModel);
         auto data = Inspector.GetData();
@@ -172,7 +179,7 @@ namespace Crd
 
             m_Player.Update();
             // Step physics
-            m_PhysicsManager.Update();
+            m_PhysicsManager.Update(1.0f / 60.0f, 6, 1.0f / 60.0f);
 
             // -------------------- RAYCAST TO BUTTON --------------------
 
@@ -184,6 +191,23 @@ namespace Crd
             // ------------------------------------------------------------
             LogicProcess.Update();
 
+            if (m_Player.GetGamepad()->GetButtonDown(AZ_GPAD_BUTTON_NORTH))
+            {
+                glm::vec3 grabPoint = m_Player.GetHeadPosition() + m_Camera3D.GetForward() * 4.0f;
+                prop.PickUp(grabPoint);
+            }
+
+            if (prop.IsPickedUp())
+            {
+                glm::vec3 propPos = prop.GetPosition(); // your prop’s world position
+                glm::vec3 cameraPos = m_Player.GetHeadPosition();
+                glm::vec3 direction = glm::normalize(cameraPos - propPos);
+
+                glm::quat lookAtQuat = glm::quatLookAt(direction, glm::vec3(0, 1, 0)); // up = Y
+                glm::vec3 holdPos = m_Player.GetHeadPosition() + m_Camera3D.GetForward() * 4.0f;
+                prop.Move(holdPos, m_Camera3D.GetForward() * 4.0f, lookAtQuat);
+            }
+
             // -------------------- Rendering --------------------
             m_Window.Clear(0.109f, 0.137f, 0.180f, 1);
 
@@ -193,9 +217,6 @@ namespace Crd
             m_Shader.setUniform("view", m_Camera3D.GetViewMatrix());
 
             // Draw scene
-            // m_Scene.Draw(m_Shader);
-            // logicModel.Draw(m_Shader);
-
             m_Renderer.AddModel(&m_Scene);
             m_Renderer.AddModel(&logicModel);
 
@@ -223,16 +244,8 @@ namespace Crd
             // sphere.Draw(m_Shader, &ballModel);
             m_Renderer.AddModel(&sphere, &ballModel);
 
-            btVector3 torque = Az::ConvertGLMVec3(glm::vec3(0, 1, 0) * 5.0f);
-            boxrb->applyTorque(torque);
-
-            btTransform transform;
-            boxrb->getMotionState()->getWorldTransform(transform);
-            glm::vec3 pos1 = Az::ConvertBTVec3(transform.getOrigin());
-            glm::mat4 bxmd = glm::translate(glm::mat4(1.0f), pos1) * glm::mat4_cast(Az::ConvertBTQuat(transform.getRotation()));
-
-            m_Renderer.AddModel(&cube, &bxmd);
-            //    m_Shader.setUniform("enableLight", false);
+            m_Renderer.AddModel(&cube, prop.GetModelMatrix());
+            // m_Shader.setUniform("enableLight", false);
             m_Renderer.SetFrustumPtr(m_Camera3D.GetFrustum());
             Az::Profiler::StartProfiling();
             m_Renderer.Draw(m_Camera3D.GetPosition());
@@ -242,18 +255,7 @@ namespace Crd
             {
                 dbr.Begin();
 
-                btVector3 aabbMin, aabbMax;
-                ball->getCollisionShape()->getAabb(ball->getWorldTransform(), aabbMin, aabbMax);
-                glm::vec3 min(aabbMin.getX(), aabbMin.getY(), aabbMin.getZ());
-                glm::vec3 max(aabbMax.getX(), aabbMax.getY(), aabbMax.getZ());
-                // dbr.AddOBB(Az::CreateOBBFromAABB(min, max, glm::mat4_cast(glmRot)));
-
-                boxrb->getCollisionShape()
-                    ->getAabb(boxrb->getWorldTransform(), aabbMin, aabbMax);
-                boxrb->getOrientation();
-                min = glm::vec3(aabbMin.getX(), aabbMin.getY(), aabbMin.getZ());
-                max = glm::vec3(aabbMax.getX(), aabbMax.getY(), aabbMax.getZ());
-                // dbr.AddOBB(Az::CreateOBBFromAABB(min, max, Az::BtQuatToGlmMat4(boxrb->getWorldTransform().getRotation())));
+                dbr.AddOBB({*prop.GetModelMatrix(), cube.meshes[0].GetLocalHalfExtents()});
 
                 dbr.AddOBB(sphere.meshes[0].GetOBB_Mat4(&ballModel));
                 dbr.AddFrustum(*m_Camera3D.GetFrustum()); // Draw the full frustum shape

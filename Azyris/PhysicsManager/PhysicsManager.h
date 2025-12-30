@@ -26,9 +26,13 @@ namespace Az
             ~PhysicsManager() = default;
 
             void InitBulletPhysics(const btVector3 &gravity = btVector3(0, -9.81f, 0));
-            void Update(float dt = (1.0f / 60.0f), uint32_t iterations = 4);
+            void Update(float dt = (1.0f / 60.0f), uint32_t iterations = 4, float fixedTimestep = (1.0f / 60.0f));
 
             btDiscreteDynamicsWorld *GetWorld() { return &m_DynamicsWorld; }
+
+            ///////--------------------------------------------------------/////////////////////
+            ///////------------      Rigid body creation        -----------/////////////////////
+            ///////--------------------------------------------------------/////////////////////
 
             btRigidBody *CreateBox(float mass, const glm::vec3 &pos, const glm::vec3 &halfExtents, bool disableDeactivation = true);
             btRigidBody *CreateSphere(float mass, const glm::vec3 &pos, float radius, bool disableDeactivation = true);
@@ -42,6 +46,9 @@ namespace Az
             // this function creates box colliders and its used by LogicProcessor class
             btRigidBody *CreateKinematicMeshCollider(Az::Mesh *mesh, void *userPtr, bool applyScaleAndPivot = false);
 
+            btRigidBody *CreateConvexHullBody(Az::Mesh *mesh, float mass, bool disableDeactivation = true);
+
+            ///// helper functions
             std::vector<btRigidBody *> *GetRigidbodies();
             std::vector<btCollisionShape *> *GetShapes();
 

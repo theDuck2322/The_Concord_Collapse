@@ -158,6 +158,18 @@ namespace Az
         }
     }
 
+    glm::quat Camera3D::GetQuaternion()
+    {
+        glm::mat4 rotMat(1.0f);
+
+        // Column-major order for GLM
+        rotMat[0] = glm::vec4(m_Right, 0.0f);  // X-axis
+        rotMat[1] = glm::vec4(m_Up, 0.0f);     // Y-axis
+        rotMat[2] = glm::vec4(-m_Front, 0.0f); // Z-axis, negative for OpenGL look direction
+        rotMat[3] = glm::vec4(0, 0, 0, 1);
+        return glm::quat_cast(rotMat);
+    }
+
     void Camera3D::RecalculateViewMatrix()
     {
         m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Front, m_Up);

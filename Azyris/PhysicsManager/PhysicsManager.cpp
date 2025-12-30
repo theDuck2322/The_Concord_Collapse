@@ -1,5 +1,6 @@
 #include <PhysicsManager/PhysicsManager.h>
 #include "PhysicsManager.h"
+#include <Utils/Helpers.h>
 
 namespace Az
 {
@@ -11,9 +12,9 @@ namespace Az
             m_DynamicsWorld = btDiscreteDynamicsWorld(&m_Dispatcher, &m_Broadphase, &m_Solver, &m_CollisionConfig);
             m_DynamicsWorld.setGravity(gravity);
         }
-        void PhysicsManager::Update(float dt, uint32_t iterations)
+        void PhysicsManager::Update(float dt, uint32_t iterations, float fixedTimestep)
         {
-            m_DynamicsWorld.stepSimulation(dt, iterations);
+            m_DynamicsWorld.stepSimulation(dt, iterations, fixedTimestep);
         }
         btRigidBody *PhysicsManager::CreateBox(float mass, const glm::vec3 &pos, const glm::vec3 &halfExtents, bool disableDeactivation)
         {
@@ -202,6 +203,35 @@ namespace Az
             m_DynamicsWorld.addRigidBody(body);
             m_Bodies.push_back(body);
             m_Shapes.push_back(shape);
+
+            return body;
+        }
+
+        btRigidBody *PhysicsManager::CreateConvexHullBody(Az::Mesh *mesh, float mass, bool disableDeactivation)
+        {
+            btConvexHullShape *hull = new btConvexHullShape();
+            for (const auto &vertex : mesh->vertices)
+            {
+                hull->addPoint(Az::ConvertGLMVec3(vertex.Position));
+            }
+            hull->optimizeConvexHull();
+            hull->initializePolyhedralFeatures();
+
+            btVector3 inertia(0, 0, 0);
+            if (mass != 0.0f)
+                hull->calculateLocalInertia(mass, inertia);
+
+            btDefaultMotionState *motionState = new btDefaultMotionState(btTransform::getIdentity());
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, hull, inertia);
+            btRigidBody *body = new btRigidBody(rbInfo);
+
+            if (disableDeactivation)
+                body->setActivationState(DISABLE_DEACTIVATION);
+
+            m_DynamicsWorld.addRigidBody(body);
+
+            m_Bodies.push_back(body);
+            m_Shapes.push_back(hull);
 
             return body;
         }
