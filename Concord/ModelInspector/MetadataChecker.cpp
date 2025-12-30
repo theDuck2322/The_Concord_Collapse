@@ -9,9 +9,19 @@ namespace Crd
             for (auto &mesh : model.meshes)
             {
                 ParsedInput result = m_ParseMeta(mesh);
-                if (result.valid == false)
-                    continue;
-                m_Data.push_back(std::make_pair(&mesh, result));
+                if (result.valid == true)
+                {
+                    m_Data.push_back(std::make_pair(&mesh, result));
+                }
+                else
+                {
+                    result = ParsedInput();
+                    result = m_ParseForPickable(mesh);
+                    if (result.valid == true)
+                        m_PickableObjects.push_back(std::make_pair(&mesh, result));
+                    else
+                        continue;
+                }
             }
         }
         void ModelInspector::CheckMultipleModelsMeta(std::vector<Az::Model *> models)
@@ -21,15 +31,24 @@ namespace Crd
                 for (auto &mesh : model->meshes)
                 {
                     ParsedInput result = m_ParseMeta(mesh);
-                    if (result.valid == false)
-                        continue;
-                    m_Data.push_back(std::make_pair(&mesh, result));
+                    if (result.valid == true)
+                    {
+                        m_Data.push_back(std::make_pair(&mesh, result));
+                    }
+                    else
+                    {
+                        result = ParsedInput();
+                        result = m_ParseForPickable(mesh);
+                        if (result.valid == true)
+                            m_PickableObjects.push_back(std::make_pair(&mesh, result));
+                        else
+                            continue;
+                    }
                 }
             }
         }
         ParsedInput ModelInspector::m_ParseMeta(Az::Mesh &mesh)
         {
-
             ParsedInput result;
             std::stringstream ss(mesh.nodeName);
             std::string id1s, id2s;
@@ -70,6 +89,30 @@ namespace Crd
             {
                 return ParsedInput{}; // empty
             }
+
+            return result;
+        }
+
+        ParsedInput ModelInspector::m_ParseForPickable(Az::Mesh &mesh)
+        {
+            ParsedInput result;
+            std::stringstream ss(mesh.nodeName);
+            std::string name, id1s;
+
+            if (!(std::getline(ss, result.type, '_') &&
+                  std::getline(ss, id1s, '_')))
+            {
+                return result; // not pickable
+            }
+
+            if (result.type != "pickable")
+            {
+                return result; // not pickable
+            }
+            else
+                result.valid = true;
+
+            result.id1 = static_cast<uint32_t>(std::stoul(id1s));
 
             return result;
         }

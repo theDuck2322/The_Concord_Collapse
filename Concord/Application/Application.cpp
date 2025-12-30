@@ -1,7 +1,4 @@
 #include <Application.h>
-#include <ModelInspector/MetadataChecker.h>
-#include <ModelLogic/mdControllers.h>
-#include <ModelLogic/LogicProccessor.h>
 
 namespace Crd
 {
@@ -147,8 +144,9 @@ namespace Crd
 
         Az::Model cube("Azyris/Assets/bx.glb");
 
-        auto boxrb = m_PhysicsManager.CreateBox(0.0f, glm::vec3(3, 2, 10), glm::vec3(1));
-        boxrb->setFriction(1.0f);
+        auto boxrb = m_PhysicsManager.CreateBox(1.0f, glm::vec3(3, 2, 10), glm::vec3(1));
+        boxrb->setFriction(0);
+        boxrb->setGravity(btVector3(0, 0, 0));
 
         std::cout << "Data processed: " << std::endl;
         Crd::MdIsp::ModelInspector Inspector;
@@ -161,7 +159,6 @@ namespace Crd
         m_Player.Init(&m_Camera3D, &m_PhysicsManager);
 
         m_Renderer.SetShader(&m_Shader);
-
         // -------------------- Main Loop --------------------
         while (!m_Window.ShouldClose())
         {
@@ -209,12 +206,7 @@ namespace Crd
             btVector3 pos = trans.getOrigin();
             btQuaternion rot = trans.getRotation();
 
-            // Bullet -> GLM quaternion (CORRECT ORDER)
-            glm::quat glmRot(
-                rot.getW(),
-                rot.getX(),
-                rot.getY(),
-                rot.getZ());
+            glm::quat glmRot(Az::ConvertBTQuat(rot));
 
             // Build model matrix: TRANSLATE * ROTATE
             glm::mat4 ballModel =
@@ -231,16 +223,16 @@ namespace Crd
             // sphere.Draw(m_Shader, &ballModel);
             m_Renderer.AddModel(&sphere, &ballModel);
 
-            glm::mat4 bxmd = glm::translate(glm::mat4(1.0f), glm::vec3(3, 2, 10));
-            bxmd = glm::rotate(bxmd, (float)Az::Timer::GetTime(), glm::vec3(0, 1, 0));
-            btTransform t;
-            t.setFromOpenGLMatrix(glm::value_ptr(bxmd));
-            boxrb->getMotionState()->setWorldTransform(t);
-            boxrb->setWorldTransform(t);
+            btVector3 torque = Az::ConvertGLMVec3(glm::vec3(0, 1, 0) * 5.0f);
+            boxrb->applyTorque(torque);
 
-            cube.Draw(m_Shader, &bxmd);
+            btTransform transform;
+            boxrb->getMotionState()->getWorldTransform(transform);
+            glm::vec3 pos1 = Az::ConvertBTVec3(transform.getOrigin());
+            glm::mat4 bxmd = glm::translate(glm::mat4(1.0f), pos1) * glm::mat4_cast(Az::ConvertBTQuat(transform.getRotation()));
+
             m_Renderer.AddModel(&cube, &bxmd);
-            //  m_Shader.setUniform("enableLight", false);
+            //    m_Shader.setUniform("enableLight", false);
             m_Renderer.SetFrustumPtr(m_Camera3D.GetFrustum());
             Az::Profiler::StartProfiling();
             m_Renderer.Draw(m_Camera3D.GetPosition());

@@ -57,6 +57,11 @@ namespace Az
 
     glm::vec3 rotatePoint(glm::vec3 point, glm::vec3 ref, float rad);
 
-    glm::mat4 Convert(const aiMatrix4x4 &m);
+    glm::mat4 Convert_aiMat4(const aiMatrix4x4 &m);
 
+    btVector3 ConvertGLMVec3(const glm::vec3 &vec);
+
+    glm::vec3 ConvertBTVec3(const btVector3 &vec);
+
+    glm::quat ConvertBTQuat(const btQuaternion &qt);
 };

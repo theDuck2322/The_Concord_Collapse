@@ -12,4 +12,23 @@ Done:
 - make a player maybe
 
 left to do:
--work to the first level of the game
+	- kinds of core mechanics: pickable objects
+							   inventory
+							   weapons
+							   doors
+							   platforms which goes from point a to b
+
+	- make a greybox level which has core mechanics
+	example:
+		Example Vertical Slice Scene
+		One small room
+		One corridor
+		One door locked by a button
+		One physics object (crate)
+		One scripted moment (door opens, sound plays)
+
+
+
+
+							    
+		

@@ -56,13 +56,19 @@ namespace Crd
             void CheckMeta(Az::Model &model);
             void CheckMultipleModelsMeta(std::vector<Az::Model *> models);
             inline std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *GetData() { return &m_Data; }
+            inline std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *GetPickableObjects() { return &m_PickableObjects; }
 
         private:
             ParsedInput m_ParseMeta(Az::Mesh &mesh);
+
+            // if returns true, then it means that the mesh is not pickable
+            ParsedInput m_ParseForPickable(Az::Mesh &mesh);
+
             FunctionalityEntry m_ParseType(const std::string &str);
 
         private:
             std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> m_Data;
+            std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> m_PickableObjects;
         };
     }
 }

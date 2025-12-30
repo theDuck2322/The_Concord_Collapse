@@ -108,7 +108,7 @@ namespace Az
         return glm::vec3(rotatedPoint) + ref;                      // Move point back
     }
 
-    glm::mat4 Convert(const aiMatrix4x4 &m)
+    glm::mat4 Convert_aiMat4(const aiMatrix4x4 &m)
     {
         glm::mat4 r;
         r[0][0] = m.a1;
@@ -127,7 +127,21 @@ namespace Az
         r[1][3] = m.d2;
         r[2][3] = m.d3;
         r[3][3] = m.d4;
+
         return r;
+    }
+
+    btVector3 ConvertGLMVec3(const glm::vec3 &vec)
+    {
+        return btVector3(vec.x, vec.y, vec.z);
+    }
+    glm::vec3 ConvertBTVec3(const btVector3 &vec)
+    {
+        return glm::vec3(vec.getX(), vec.getY(), vec.getZ());
+    }
+    glm::quat ConvertBTQuat(const btQuaternion &qt)
+    {
+        return glm::quat(qt.getW(), qt.getX(), qt.getY(), qt.getZ());
     }
 
 }

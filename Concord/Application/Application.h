@@ -1,12 +1,5 @@
 #pragma once
-#include <Azyris.h>
-#include <DrawCallCounter.h>
-#include <PhysicsManager/PhysicsManager.h>
-#include <Entity/Player.h>
-
-#include <ImGUI/imgui.h>
-#include <ImGUI/imgui_impl_sdl3.h>
-#include <ImGUI/imgui_impl_opengl3.h>
+#include <Concord.h>
 
 namespace Crd
 {

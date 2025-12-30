@@ -1,12 +1,18 @@
 #pragma once
+
+#include <PhysicsManager/PhysicsManager.h>
+
 #include <MetadataChecker.h>
+#include <PickableProp.h>
+#include <mdControlled.h>
+#include <mdControllers.h>
+
+#include <Utils/Timer.h>
+
 #include <vector>
 #include <utility>
-#include <mdControllers.h>
 #include <unordered_map>
 #include <memory>
-#include <Utils/Timer.h>
-#include <PhysicsManager/PhysicsManager.h>
 
 namespace Crd
 {
@@ -16,6 +22,7 @@ namespace Crd
         {
         public:
             void SetData(std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *data);
+            void SetPickable(std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *pickable);
             bool Init(Az::physx::PhysicsManager *managerPtr);
 
             // Access controllers / controlleds
@@ -29,21 +36,28 @@ namespace Crd
             {
                 return m_Controlleds;
             }
+
             void Update();
 
             void RaycastTest(const btVector3 &from, const btVector3 &to, bool condition);
 
         private:
+            void m_CreateLogicObjects();
             void m_Binding();
+
+            void m_CreatePickables();
 
         private:
             Az::physx::PhysicsManager *m_ManagerPtr;
             std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *m_Data = nullptr;
+            std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *m_PickableObjects = nullptr;
             bool m_IsDataSet = false;
+            bool m_IsPickableSet = false;
 
             // Multiple controllers & controlleds per id
             std::unordered_map<uint32_t, std::vector<std::unique_ptr<MdController>>> m_Controllers;
             std::unordered_map<uint32_t, std::vector<std::unique_ptr<MdControlled>>> m_Controlleds;
+            std::unordered_map<uint32_t, std::unique_ptr<Crd::Object::Prop>> m_Pickables;
         };
     }
 }

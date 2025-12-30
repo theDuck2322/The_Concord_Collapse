@@ -37,6 +37,12 @@ namespace Crd
             inline void SetMesh(Az::Mesh *mesh)
             {
                 m_Mesh = mesh;
+                if (mesh == nullptr)
+                {
+                    std::cout << "Mesh is nullptr" << std::endl;
+                    return;
+                }
+
                 m_OriginalModel = mesh->modelMatrix; // ← initialize here
                 Update(false);
             }

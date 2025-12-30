@@ -13,14 +13,24 @@ namespace Crd
             m_IsDataSet = (data != nullptr);
         }
 
+        void LogicProcessor::SetPickable(std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *pickable)
+        {
+            m_PickableObjects = pickable;
+            m_IsPickableSet = (pickable != nullptr);
+        }
+
         bool LogicProcessor::Init(Az::physx::PhysicsManager *managerPtr)
         {
-            if (!m_IsDataSet || !managerPtr)
+            if (!managerPtr)
                 return true;
 
             m_ManagerPtr = managerPtr;
 
+            m_CreateLogicObjects();
             m_Binding();
+
+            m_CreatePickables(); // implement this
+
             return false;
         }
 
@@ -88,7 +98,7 @@ namespace Crd
             std::cout << inp.type << " " << inp.id1 << " " << inp.connector << " " << inp.id2 << std::endl;
         }
 
-        void LogicProcessor::m_Binding()
+        void LogicProcessor::m_CreateLogicObjects()
         {
             if (!m_Data)
                 return;
@@ -226,6 +236,12 @@ namespace Crd
                     }
                 }
             }
+        }
+
+        void LogicProcessor::m_Binding()
+        {
+            if (!m_Data)
+                return;
 
             for (auto &p : *m_Data)
             {
@@ -256,6 +272,9 @@ namespace Crd
                               << " references missing controlled id " << input.id2 << std::endl;
                 }
             }
+        }
+        void LogicProcessor::m_CreatePickables()
+        {
         }
     }
 }

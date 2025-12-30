@@ -148,7 +148,7 @@ namespace Az
 
     void Model::processNode(aiNode *node, const glm::mat4 &parent)
     {
-        glm::mat4 local = Convert(node->mTransformation);
+        glm::mat4 local = Convert_aiMat4(node->mTransformation);
         glm::mat4 global = parent * local;
 
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
