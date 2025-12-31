@@ -29,7 +29,7 @@ namespace Crd
             m_CreateLogicObjects();
             m_Binding();
 
-            m_CreatePickables(); // implement this
+            m_CreatePickables();
 
             return false;
         }
@@ -67,7 +67,7 @@ namespace Crd
             }
         }
 
-        void LogicProcessor::RaycastTest(const btVector3 &from, const btVector3 &to, bool condition)
+        void LogicProcessor::RaycastLogic(const btVector3 &from, const btVector3 &to, bool condition)
         {
             btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
             m_ManagerPtr->GetWorld()->rayTest(from, to, rayCallback);
@@ -91,6 +91,34 @@ namespace Crd
                     }
                 }
             }
+        }
+
+        /// think on how to implement this
+        Crd::Object::Prop *LogicProcessor::RaycastProp(
+            const btVector3 &from, const btVector3 &to, bool condition)
+        {
+            if (!condition)
+                return nullptr;
+
+            btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
+            m_ManagerPtr->GetWorld()->rayTest(from, to, rayCallback);
+
+            if (!rayCallback.hasHit())
+                return nullptr;
+
+            const btRigidBody *hitBody =
+                btRigidBody::upcast(rayCallback.m_collisionObject);
+
+            if (!hitBody)
+                return nullptr;
+
+            for (auto &prop : m_Pickables)
+            {
+                if (prop->GetRigidbody() == hitBody)
+                    return prop.get();
+            }
+
+            return nullptr;
         }
 
         void printInput(const Crd::MdIsp::ParsedInput &inp)
@@ -275,6 +303,29 @@ namespace Crd
         }
         void LogicProcessor::m_CreatePickables()
         {
+            if (!m_PickableObjects)
+                return;
+
+            m_Pickables.clear();
+
+            for (auto &p : *m_PickableObjects)
+            {
+                Az::Mesh *mesh = p.first;
+                Crd::MdIsp::ParsedInput &input = p.second;
+
+                if (!input.valid)
+                    continue;
+
+                auto prop = std::make_unique<Crd::Object::Prop>();
+                prop->SetMesh(mesh);
+                auto body = m_ManagerPtr->CreateConvexHullBody(mesh, 1.0f);
+                body->setFriction(1.0f);
+                body->setDamping(0.5f, 0.5f);
+                prop->SetRigidBody(body);
+                prop->Init();
+
+                m_Pickables.emplace_back(std::move(prop));
+            }
         }
     }
 }

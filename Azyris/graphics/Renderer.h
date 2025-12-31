@@ -15,6 +15,7 @@ namespace Az
         void SetShader(Az::Shader *shader);
         void SetFrustumPtr(Az::Frustum *frustumPtr);
 
+        void AddMesh(Az::Mesh *mesh, glm::mat4 *overrideMatrix = nullptr);
         // use this function every frame
         void AddModel(Az::Model *model, glm::mat4 *overrideMatrix = nullptr);
         // this function removes all the pointers after draw
@@ -30,6 +31,7 @@ namespace Az
 
     private:
         std::vector<std::pair<Az::Model *, glm::mat4 *>> m_Models;
+        std::vector<std::pair<Az::Mesh *, glm::mat4 *>> m_Meshes;
         std::vector<std::pair<Az::Mesh *, glm::mat4 *>> m_TransparentMeshes;
 
         Az::Frustum *m_Frustum;

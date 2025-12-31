@@ -127,6 +127,7 @@ namespace Az
     {
         if (!EndsWith(path, ".gltf") && !EndsWith(path, ".glb"))
         {
+            std::cout << "Check for extension name" << std::endl;
             throw std::runtime_error("Only glTF / GLB models supported");
         }
 

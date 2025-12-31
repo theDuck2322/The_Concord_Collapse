@@ -10,6 +10,10 @@ namespace Az
     {
         m_Frustum = frustumPtr;
     }
+    void Renderer::AddMesh(Az::Mesh *mesh, glm::mat4 *overrideMatrix)
+    {
+        m_Meshes.push_back(std::make_pair(mesh, overrideMatrix));
+    }
     void Renderer::AddModel(Az::Model *model, glm::mat4 *overrideMatrix)
     {
         m_Models.push_back(std::make_pair(model, overrideMatrix));
@@ -26,6 +30,7 @@ namespace Az
         m_TransparentPass(cameraPosition);
         m_TransparentMeshes.clear();
         m_Models.clear();
+        m_Meshes.clear();
     }
 
     void Renderer::m_FirstPass()
@@ -52,6 +57,20 @@ namespace Az
                         mesh.Draw(*m_Shader, matrix);
                     }
                 }
+            }
+        }
+
+        for (auto &pair : m_Meshes)
+        {
+            auto mesh = pair.first;
+            auto matrix = pair.second;
+            if (mesh->hasTransparency)
+            {
+                m_TransparentMeshes.push_back(std::make_pair(mesh, matrix));
+            }
+            else
+            {
+                mesh->Draw(*m_Shader, matrix);
             }
         }
     }

@@ -37,9 +37,12 @@ namespace Crd
                 return m_Controlleds;
             }
 
+            inline std::vector<std::unique_ptr<Crd::Object::Prop>> *GetProps() { return &m_Pickables; }
+
             void Update();
 
-            void RaycastTest(const btVector3 &from, const btVector3 &to, bool condition);
+            void RaycastLogic(const btVector3 &from, const btVector3 &to, bool condition);
+            Crd::Object::Prop *RaycastProp(const btVector3 &from, const btVector3 &to, bool condition);
 
         private:
             void m_CreateLogicObjects();
@@ -57,7 +60,7 @@ namespace Crd
             // Multiple controllers & controlleds per id
             std::unordered_map<uint32_t, std::vector<std::unique_ptr<MdController>>> m_Controllers;
             std::unordered_map<uint32_t, std::vector<std::unique_ptr<MdControlled>>> m_Controlleds;
-            std::unordered_map<uint32_t, std::unique_ptr<Crd::Object::Prop>> m_Pickables;
+            std::vector<std::unique_ptr<Crd::Object::Prop>> m_Pickables;
         };
     }
 }

@@ -37,6 +37,7 @@ namespace Crd
         m_GroundCheck();
         m_ApplyMovement();
         m_UpdateCameraFromBody();
+        m_HandlePropMovement();
     }
 
     void Player::m_ProcessInputGamepad()
@@ -201,19 +202,22 @@ namespace Crd
             m_MovementInput = glm::normalize(m_MovementInput);
         }
 
-        // Mouse rotation
-        float deltaTime = Az::Timer::fDeltaTime;
-        // Get current camera rotation
-        float currentYaw = m_CameraPtr->GetYaw();
-        float currentPitch = m_CameraPtr->GetPitch();
+        if (m_CanLook)
+        {
+            // Mouse rotation
+            float deltaTime = Az::Timer::fDeltaTime;
+            // Get current camera rotation
+            float currentYaw = m_CameraPtr->GetYaw();
+            float currentPitch = m_CameraPtr->GetPitch();
 
-        // Apply offsets
-        currentYaw += Az::Input::GetMouseDeltaX() * deltaTime * m_MouseSensitivity;
-        currentPitch -= Az::Input::GetMouseDeltaY() * deltaTime * m_MouseSensitivity;
-        // Clamp
-        currentPitch = glm::clamp(currentPitch, -89.0f, 89.0f);
-        // Set new rotation
-        m_CameraPtr->SetRotation(currentYaw, currentPitch);
+            // Apply offsets
+            currentYaw += Az::Input::GetMouseDeltaX() * deltaTime * m_MouseSensitivity;
+            currentPitch -= Az::Input::GetMouseDeltaY() * deltaTime * m_MouseSensitivity;
+            // Clamp
+            currentPitch = glm::clamp(currentPitch, -89.0f, 89.0f);
+            // Set new rotation
+            m_CameraPtr->SetRotation(currentYaw, currentPitch);
+        }
 
         if (Az::Input::GetKey(AZ_SPACE) &&
             (m_IsGrounded || m_GroundedTime <= m_CoyoteTime))
@@ -327,6 +331,58 @@ namespace Crd
         m_Body->setLinearVelocity(desiredVel);
     }
 
+    void Player::TryPickupProp(Crd::Object::Prop *prop)
+    {
+        if (!prop || m_HoldingProp)
+            return;
+
+        glm::vec3 grabPoint =
+            GetHeadPosition() + m_CameraPtr->GetForward() * 2.0f;
+
+        glm::vec3 propPos = prop->GetPosition();
+        glm::vec3 cameraPos = GetHeadPosition();
+        glm::vec3 direction = glm::normalize(cameraPos - propPos);
+
+        glm::quat lookAtQuat =
+            glm::quatLookAt(direction, glm::vec3(0, 1, 0));
+
+        prop->PickUp(grabPoint, lookAtQuat);
+
+        if (prop->IsPickedUp())
+            m_HoldingProp = prop;
+    }
+
+    void Player::DropHeldProp()
+    {
+        if (!m_HoldingProp)
+            return;
+
+        // Toggle pickup OFF
+        m_HoldingProp->PickUp({}, {});
+        m_HoldingProp = nullptr;
+    }
+
+    void Player::m_HandlePropMovement()
+    {
+        if (!m_HoldingProp)
+            return;
+        if (m_HoldingProp->IsPickedUp())
+        {
+            glm::vec3 propPos = m_HoldingProp->GetPosition(); // your prop’s world position
+            glm::vec3 cameraPos = GetHeadPosition();
+            glm::vec3 direction = glm::normalize(cameraPos - propPos);
+
+            glm::quat lookAtQuat = glm::quatLookAt(direction, glm::vec3(0, 1, 0)); // up = Y
+            glm::vec3 holdPos = GetHeadPosition() + m_CameraPtr->GetForward() * 4.0f;
+            m_HoldingProp->Move(holdPos, m_CameraPtr->GetForward() * 2.0f, lookAtQuat);
+            SetCanLook(!Az::Input::GetKey(AZ_Q));
+            if (Az::Input::GetKey(AZ_Q))
+            {
+                m_HoldingProp->Rotate();
+            }
+        }
+    }
+
     void Player::m_UpdateCameraFromBody()
     {
         if (!m_Body || !m_CameraPtr)
@@ -361,4 +417,5 @@ namespace Crd
             bodyPos.y() + m_CameraHeight,
             bodyPos.z());
     }
+
 }

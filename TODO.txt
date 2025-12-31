@@ -12,6 +12,13 @@ Done:
 - make a player maybe
 
 left to do:
+	- implement rotation for picked object
+	- get pickable objects from loaded model
+	- add pickable object to a list and cast a ray to detect it
+	- maybe create a structure for when creating a physics object like:
+								- friction
+								- damping
+								- restitution and stuff
 	- kinds of core mechanics: pickable objects
 							   inventory
 							   weapons

@@ -150,6 +150,7 @@ namespace Crd
         }
 
         Az::Model cube("Azyris/Assets/bx.glb");
+        Az::Model Props("Azyris/Assets/pickable.glb");
 
         auto boxrb = m_PhysicsManager.CreateBox(1.0f, glm::vec3(3, 2, 10), glm::vec3(1));
         boxrb->setFriction(1.0f);
@@ -165,14 +166,18 @@ namespace Crd
         std::cout << "Data processed: " << std::endl;
         Crd::MdIsp::ModelInspector Inspector;
         Inspector.CheckMeta(logicModel);
+        Inspector.CheckMeta(Props);
         auto data = Inspector.GetData();
+        auto pickable = Inspector.GetPickableObjects();
         Crd::MdLogic::LogicProcessor LogicProcess;
         LogicProcess.SetData(data);
+        LogicProcess.SetPickable(pickable);
         LogicProcess.Init(&m_PhysicsManager);
 
         m_Player.Init(&m_Camera3D, &m_PhysicsManager);
 
         m_Renderer.SetShader(&m_Shader);
+
         //  -------------------- Main Loop --------------------
         while (!m_Window.ShouldClose())
         {
@@ -182,36 +187,32 @@ namespace Crd
             /////// EVENT POLLING ///////////
             ProccessEvents();
             /////////////////////////////////
-            m_Player.Update();
             // Step physics
             m_PhysicsManager.Update(1.0f / 60.0f, 6, 1.0f / 60.0f);
 
             // -------------------- RAYCAST TO BUTTON --------------------
-
             btVector3 from(m_Camera3D.GetPosition().x, m_Camera3D.GetPosition().y, m_Camera3D.GetPosition().z);
             btVector3 forward(m_Camera3D.GetForward().x, m_Camera3D.GetForward().y, m_Camera3D.GetForward().z);
-            btVector3 to = from + forward * 4.0f; // ray length
-            LogicProcess.RaycastTest(from, to, m_Player.GetGamepad()->GetButtonDown(AZ_GPAD_BUTTON_WEST));
+            btVector3 to = from + forward * 8.0f; // ray length
+            LogicProcess.RaycastLogic(from, to, m_Player.GetGamepad()->GetButtonDown(AZ_GPAD_BUTTON_WEST) || Az::Input::GetMouseButtonDown(1));
+            if (Az::Input::GetKeyDown(AZ_E))
+            {
+                if (m_Player.IsHoldingProp())
+                {
+                    m_Player.DropHeldProp();
+                }
+                else
+                {
+                    if (auto *prop = LogicProcess.RaycastProp(from, to, true))
+                    {
+                        m_Player.TryPickupProp(prop);
+                    }
+                }
+            }
 
             // ------------------------------------------------------------
             LogicProcess.Update();
-
-            if (m_Player.GetGamepad()->GetButtonDown(AZ_GPAD_BUTTON_NORTH))
-            {
-                glm::vec3 grabPoint = m_Player.GetHeadPosition() + m_Camera3D.GetForward() * 4.0f;
-                prop.PickUp(grabPoint);
-            }
-
-            if (prop.IsPickedUp())
-            {
-                glm::vec3 propPos = prop.GetPosition(); // your prop’s world position
-                glm::vec3 cameraPos = m_Player.GetHeadPosition();
-                glm::vec3 direction = glm::normalize(cameraPos - propPos);
-
-                glm::quat lookAtQuat = glm::quatLookAt(direction, glm::vec3(0, 1, 0)); // up = Y
-                glm::vec3 holdPos = m_Player.GetHeadPosition() + m_Camera3D.GetForward() * 4.0f;
-                prop.Move(holdPos, m_Camera3D.GetForward() * 4.0f, lookAtQuat);
-            }
+            m_Player.Update();
 
             // -------------------- Rendering --------------------
             m_Window.Clear(0.109f, 0.137f, 0.180f, 1);
@@ -250,6 +251,12 @@ namespace Crd
             m_Renderer.AddModel(&sphere, &ballModel);
 
             m_Renderer.AddModel(&cube, prop.GetModelMatrix());
+
+            for (auto &prop : *LogicProcess.GetProps())
+            {
+                m_Renderer.AddMesh(prop.get()->GetMesh(), prop.get()->GetModelMatrix());
+            }
+
             // m_Shader.setUniform("enableLight", false);
             m_Renderer.SetFrustumPtr(m_Camera3D.GetFrustum());
             Az::Profiler::StartProfiling();
@@ -290,6 +297,18 @@ namespace Crd
                                             glm::vec3(max.getX(), max.getY(), max.getZ()));
                             }
                         }
+                    }
+                }
+
+                for (auto &prop : *LogicProcess.GetProps())
+                {
+                    btRigidBody *rb = prop.get()->GetRigidbody();
+                    if (rb) // Check controller’s rigid body
+                    {
+                        btVector3 min, max;
+                        rb->getCollisionShape()->getAabb(rb->getWorldTransform(), min, max);
+                        dbr.AddAABB(glm::vec3(min.getX(), min.getY(), min.getZ()),
+                                    glm::vec3(max.getX(), max.getY(), max.getZ()));
                     }
                 }
 

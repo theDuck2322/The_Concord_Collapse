@@ -2,6 +2,8 @@
 #include <graphics/Camera3D.h>
 #include <core/Gamepad.h>
 #include <PhysicsManager/PhysicsManager.h>
+#include <ModelLogic/PickableProp.h>
+
 #include <glm/glm.hpp>
 
 namespace Crd
@@ -12,8 +14,14 @@ namespace Crd
         void Init(Az::Camera3D *camera, Az::physx::PhysicsManager *manager);
         void Update();
 
+        inline void SetCanLook(bool val) { m_CanLook = val; }
+        inline bool CanLook() { return m_CanLook; }
         // Get player position for camera
         glm::vec3 GetHeadPosition() const;
+
+        void TryPickupProp(Crd::Object::Prop *prop);
+        void DropHeldProp();
+        bool IsHoldingProp() const { return m_HoldingProp != nullptr; }
 
         inline Az::Gamepad *GetGamepad() { return &m_Gamepad; }
         inline btRigidBody *GetRigidbody() { return m_Body; }
@@ -25,9 +33,11 @@ namespace Crd
         void m_GroundCheck();
         void m_ApplyMovement();
 
+        void m_HandlePropMovement();
+
     private:
         bool m_EnableExtraSpeed = false;
-
+        bool m_CanLook = true;
         float m_WalkSpeed = 5.0f;
         float m_RunSpeed = 2 * m_WalkSpeed;
 
@@ -42,6 +52,8 @@ namespace Crd
         Az::physx::PhysicsManager *m_PhysicsManager;
         btRigidBody *m_Body;
         Az::Camera3D *m_CameraPtr;
+
+        Crd::Object::Prop *m_HoldingProp = nullptr;
 
         // Input accumulation for physics
         glm::vec3 m_MovementInput = glm::vec3(0.0f);
