@@ -68,7 +68,8 @@ namespace Crd
             }
             else
             {
-                std::cout << "Functionality of mesh: " << mesh.nodeName << " is invalid" << std::endl;
+                if (!mesh.nodeName.starts_with("pickable"))
+                    std::cout << "Functionality of mesh: " << mesh.nodeName << " is invalid" << std::endl;
             }
 
             if (result.controllType == (uint32_t)CONTROLLER)

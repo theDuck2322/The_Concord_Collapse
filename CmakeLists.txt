@@ -88,17 +88,6 @@ target_link_libraries(Azyris PUBLIC
     $<$<CONFIG:Release>:${VENDOR_LIB_RELEASE}/LinearMath.lib>
 )
 
-
-# Link precompiled static libs (static CRT versions)
-#target_link_libraries(Azyris PUBLIC
-#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/SDL3.lib
-#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/assimp-vc143-mtd.lib
-#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/zlibstaticd.lib
-#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/BulletCollision_Debug.lib
-#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/BulletDynamics_Debug.lib
-#    ${CMAKE_CURRENT_SOURCE_DIR}/vendors/lib/debug/LinearMath_Debug.lib
-#)
-
 # ---------------------------------------------
 # Build the game executable (Concord)
 # ---------------------------------------------
@@ -122,3 +111,11 @@ target_include_directories(Concord PUBLIC
 
 # Concord links to Azyris (which links vendors)
 target_link_libraries(Concord PRIVATE Azyris)
+
+# Define MY_DEBUG for Debug builds
+target_compile_definitions(Azyris PRIVATE $<$<CONFIG:Debug>:AZ_DEBUG>)
+target_compile_definitions(Azyris PRIVATE $<$<CONFIG:Release>:AZ_RELEASE>)
+
+target_compile_definitions(Concord PRIVATE $<$<CONFIG:Debug>:AZ_DEBUG>)
+target_compile_definitions(Concord PRIVATE $<$<CONFIG:Release>:AZ_RELEASE>)
+

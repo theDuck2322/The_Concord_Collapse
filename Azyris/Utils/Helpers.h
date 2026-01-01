@@ -15,6 +15,7 @@
 #define MIN_INT16 -32768
 #define MAX_INT16 32767
 
+#ifdef AZ_DEBUG
 // if condition is false then it asserts
 #define AZ_Assert(cond, msg)                                                   \
     do                                                                         \
@@ -27,6 +28,12 @@
             std::abort();                                                      \
         }                                                                      \
     } while (false)
+#else
+#define AZ_Assert(cond, msg) \
+    do                       \
+    {                        \
+    } while (false)
+#endif
 
 namespace Az
 {

@@ -21,10 +21,10 @@ namespace Az
 
     void Renderer::Draw(const glm::vec3 &cameraPosition)
     {
-        if (m_Frustum == nullptr || m_Shader == nullptr)
-        {
-            std::cout << "Frustum pointer or shader pointer are nullptr" << std::endl;
-        }
+        // if (m_Frustum == nullptr || m_Shader == nullptr)
+        //{
+        //     std::cout << "Frustum pointer or shader pointer are nullptr" << std::endl;
+        //}
 
         m_FirstPass();
         m_TransparentPass(cameraPosition);

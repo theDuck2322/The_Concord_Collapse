@@ -14,7 +14,8 @@ namespace Crd
 
         // Create player capsule (better for character than box)
         // Or use box if you prefer
-        m_Body = manager->CreateCapsule(1.0f, glm::vec3(0, 10, 0), 0.5, 3);
+        size_t id = manager->CreateCapsule(1.0f, glm::vec3(0, 10, 0), 0.5, 3);
+        m_Body = manager->GetRigidbodyById(id);
 
         // Configure physics body for player
         m_Body->setFriction(0.5f);
@@ -356,7 +357,7 @@ namespace Crd
     {
         if (!m_HoldingProp)
             return;
-
+        m_CanLook = true;
         // Toggle pickup OFF
         m_HoldingProp->PickUp({}, {});
         m_HoldingProp = nullptr;
@@ -418,4 +419,8 @@ namespace Crd
             bodyPos.z());
     }
 
+    glm::vec3 Player::GetForwardRay(float length)
+    {
+        return GetHeadPosition() + m_CameraPtr->GetForward() * length;
+    }
 }

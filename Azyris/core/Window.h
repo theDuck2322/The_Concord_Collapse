@@ -43,10 +43,10 @@ namespace Az
 
         inline glm::vec2 GetSize()
         {
-            int *w;
-            int *h;
-            SDL_GetWindowSize(m_WindowPtr, w, h);
-            return glm::vec2((float)*w, (float)*h);
+            int w = 0;
+            int h = 0;
+            SDL_GetWindowSize(m_WindowPtr, &w, &h);
+            return glm::vec2((float)w, (float)h);
         }
         inline void SetSize(uint32_t width, uint32_t height)
         {

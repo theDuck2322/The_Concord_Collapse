@@ -13,16 +13,20 @@ namespace Crd
         class Prop
         {
         public:
+            /// ------------------ Setters --------------------------
             static void SetPhysicsManagerPtr(Az::physx::PhysicsManager *manager);
-
             void SetMesh(Az::Mesh *mesh);
             void SetRigidBody(btRigidBody *body);
 
             bool Init();
 
+            /// --------------- Functionality -----------------------
+
             void PickUp(const glm::vec3 &playerPos, const glm::quat &playerRot);
             void Move(const glm::vec3 &playerPos, const glm::vec3 &forwardVector, const glm::quat &playerRot);
             void Rotate();
+
+            /// --------------- Getters ---------------------------
             inline Az::Mesh *GetMesh() { return m_Mesh; }
             glm::mat4 *GetModelMatrix();
 

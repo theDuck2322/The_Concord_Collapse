@@ -153,7 +153,9 @@ namespace Crd
                         auto button = std::make_unique<Button>();
                         button->SetMesh(mesh);
 
-                        btRigidBody *body = m_ManagerPtr->CreateKinematicMeshCollider(mesh, button.get());
+                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, button.get());
+
+                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
                             std::cout << "Body was not created" << std::endl;
 
@@ -167,8 +169,8 @@ namespace Crd
                     {
                         auto swtch = std::make_unique<Switch>();
                         swtch->SetMesh(mesh);
-
-                        btRigidBody *body = m_ManagerPtr->CreateKinematicMeshCollider(mesh, swtch.get());
+                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, swtch.get());
+                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
                             std::cout << "Body was not created" << std::endl;
 
@@ -181,8 +183,8 @@ namespace Crd
                     {
                         auto sdor = std::make_unique<SimpleDoor>();
                         sdor->SetMesh(mesh);
-
-                        btRigidBody *body = m_ManagerPtr->CreateKinematicMeshCollider(mesh, sdor.get(), true);
+                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, sdor.get(), true);
+                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
                             std::cout << "Body was not created" << std::endl;
 
@@ -195,8 +197,8 @@ namespace Crd
                     {
                         auto ssdor = std::make_unique<SimpleSlideDoor>();
                         ssdor->SetMesh(mesh);
-
-                        btRigidBody *body = m_ManagerPtr->CreateKinematicMeshCollider(mesh, ssdor.get(), true);
+                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, ssdor.get(), true);
+                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
                             std::cout << "Body was not created" << std::endl;
 
@@ -227,8 +229,8 @@ namespace Crd
                     {
                         auto door = std::make_unique<Door>();
                         door->SetMesh(mesh);
-
-                        btRigidBody *body = m_ManagerPtr->CreateKinematicMeshCollider(mesh, door.get());
+                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, door.get());
+                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
                             std::cout << "Body was not created" << std::endl;
 
@@ -242,8 +244,8 @@ namespace Crd
                     {
                         auto slDoor = std::make_unique<SlideDoor>();
                         slDoor->SetMesh(mesh);
-
-                        btRigidBody *body = m_ManagerPtr->CreateKinematicMeshCollider(mesh, slDoor.get());
+                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, slDoor.get());
+                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
                             std::cout << "Body was not created" << std::endl;
                         printInput(input);
@@ -318,7 +320,8 @@ namespace Crd
 
                 auto prop = std::make_unique<Crd::Object::Prop>();
                 prop->SetMesh(mesh);
-                auto body = m_ManagerPtr->CreateConvexHullBody(mesh, 1.0f);
+                size_t id = m_ManagerPtr->CreateConvexHullBody(mesh, 1.0f);
+                auto body = m_ManagerPtr->GetRigidbodyById(id);
                 body->setFriction(1.0f);
                 body->setDamping(0.5f, 0.5f);
                 prop->SetRigidBody(body);

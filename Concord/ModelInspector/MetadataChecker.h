@@ -53,6 +53,7 @@ namespace Crd
         class ModelInspector
         {
         public:
+            ModelInspector() = default;
             void CheckMeta(Az::Model &model);
             void CheckMultipleModelsMeta(std::vector<Az::Model *> models);
             inline std::vector<std::pair<Az::Mesh *, Crd::MdIsp::ParsedInput>> *GetData() { return &m_Data; }

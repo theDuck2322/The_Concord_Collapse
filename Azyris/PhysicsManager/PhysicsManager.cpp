@@ -16,7 +16,7 @@ namespace Az
         {
             m_DynamicsWorld.stepSimulation(dt, iterations, fixedTimestep);
         }
-        btRigidBody *PhysicsManager::CreateBox(float mass, const glm::vec3 &pos, const glm::vec3 &halfExtents, bool disableDeactivation)
+        size_t PhysicsManager::CreateBox(float mass, const glm::vec3 &pos, const glm::vec3 &halfExtents, bool disableDeactivation)
         {
             // Create shape
             btBoxShape *boxShape = new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
@@ -47,9 +47,9 @@ namespace Az
             m_DynamicsWorld.addRigidBody(body);
             m_Bodies.push_back(body);
 
-            return body;
+            return m_CurrentID++;
         }
-        btRigidBody *PhysicsManager::CreateSphere(float mass, const glm::vec3 &pos, float radius, bool disableDeactivation)
+        size_t PhysicsManager::CreateSphere(float mass, const glm::vec3 &pos, float radius, bool disableDeactivation)
         {
             btSphereShape *sphereShape = new btSphereShape(radius);
             m_Shapes.push_back(sphereShape);
@@ -74,9 +74,9 @@ namespace Az
             m_DynamicsWorld.addRigidBody(body);
             m_Bodies.push_back(body);
 
-            return body;
+            return m_CurrentID++;
         }
-        btRigidBody *PhysicsManager::CreateMeshCollider(const Az::Model &model)
+        size_t PhysicsManager::CreateMeshCollider(const Az::Model &model)
         {
             btTriangleMesh *triangleMesh = new btTriangleMesh();
             for (auto &mesh : model.meshes)
@@ -105,10 +105,12 @@ namespace Az
             m_DynamicsWorld.addRigidBody(meshRigidBody);
             m_Bodies.push_back(meshRigidBody);
             m_Shapes.push_back(meshShape);
-            return meshRigidBody;
+            m_TriangleMeshes.push_back(triangleMesh);
+
+            return m_CurrentID++;
         }
 
-        btRigidBody *PhysicsManager::CreateCapsule(float mass, const glm::vec3 &pos, float radius, float height, bool disableDeactivation, int upAxis)
+        size_t PhysicsManager::CreateCapsule(float mass, const glm::vec3 &pos, float radius, float height, bool disableDeactivation, int upAxis)
         {
             // Create capsule shape
             btCapsuleShape *capsuleShape = nullptr;
@@ -162,10 +164,10 @@ namespace Az
             m_DynamicsWorld.addRigidBody(body);
             m_Bodies.push_back(body);
 
-            return body;
+            return m_CurrentID++;
         }
 
-        btRigidBody *PhysicsManager::CreateKinematicMeshCollider(Az::Mesh *mesh, void *userPtr, bool applyScaleAndPivot)
+        size_t PhysicsManager::CreateKinematicMeshCollider(Az::Mesh *mesh, void *userPtr, bool applyScaleAndPivot)
         {
             // Get local AABB
             glm::vec3 halfExtents = mesh->GetLocalHalfExtents();
@@ -204,10 +206,10 @@ namespace Az
             m_Bodies.push_back(body);
             m_Shapes.push_back(shape);
 
-            return body;
+            return m_CurrentID++;
         }
 
-        btRigidBody *PhysicsManager::CreateConvexHullBody(Az::Mesh *mesh, float mass, bool disableDeactivation)
+        size_t PhysicsManager::CreateConvexHullBody(Az::Mesh *mesh, float mass, bool disableDeactivation)
         {
             btConvexHullShape *hull = new btConvexHullShape();
             for (const auto &vertex : mesh->vertices)
@@ -233,7 +235,7 @@ namespace Az
             m_Bodies.push_back(body);
             m_Shapes.push_back(hull);
 
-            return body;
+            return m_CurrentID++;
         }
 
         std::vector<btRigidBody *> *PhysicsManager::GetRigidbodies()
@@ -246,31 +248,52 @@ namespace Az
             return &m_Shapes;
         }
 
-        void PhysicsManager::AddRigidBody(btRigidBody *body, int group, int mask)
+        btRigidBody *PhysicsManager::GetRigidbodyById(size_t id)
+        {
+            if (id >= m_Bodies.size())
+            {
+                std::cout << "Id out of bounds" << std::endl;
+                return nullptr;
+            }
+
+            if (m_Bodies[id] == nullptr)
+                std::cout << "Collider with ID: " << id << " is nullptr" << std::endl;
+
+            return m_Bodies[id];
+        }
+
+        void PhysicsManager::RemoveRigidBodyById(size_t id)
+        {
+            if (id >= m_Bodies.size())
+            {
+                std::cout << "Id out of bounds" << std::endl;
+                return;
+            }
+            auto body = GetRigidbodyById(id);
+            if (body == nullptr)
+            {
+                std::cout << "RigidBody already deleted" << std::endl;
+                return;
+            }
+
+            m_DynamicsWorld.removeRigidBody(body);
+
+            delete body->getMotionState();
+            delete body;
+
+            delete m_Shapes[id];
+
+            m_Bodies[id] = nullptr;
+            m_Shapes[id] = nullptr;
+        }
+
+        size_t PhysicsManager::AddRigidBody(btRigidBody *body, int group, int mask)
         {
             m_DynamicsWorld.addRigidBody(body, group, mask);
             m_Bodies.push_back(body);
-        }
+            m_Shapes.push_back(body->getCollisionShape());
 
-        void PhysicsManager::RemoveRigidBody(btRigidBody *body)
-        {
-            m_DynamicsWorld.removeRigidBody(body);
-
-            auto it = std::find(m_Bodies.begin(), m_Bodies.end(), body);
-            if (it != m_Bodies.end())
-            {
-                m_Bodies.erase(it);
-            }
-        }
-
-        void PhysicsManager::PushBackBody(btRigidBody *body)
-        {
-            m_Bodies.push_back(body);
-        }
-
-        void PhysicsManager::PushBackShape(btCollisionShape *shape)
-        {
-            m_Shapes.push_back(shape);
+            return m_CurrentID++;
         }
 
         void PhysicsManager::Cleanup()
@@ -278,6 +301,8 @@ namespace Az
             // Remove all bodies from world
             for (auto *body : m_Bodies)
             {
+                if (!body)
+                    continue;
                 m_DynamicsWorld.removeRigidBody(body);
 
                 // Cleanup body
@@ -295,45 +320,11 @@ namespace Az
                 delete shape;
             }
             m_Shapes.clear();
+
+            for (auto *mesh : m_TriangleMeshes)
+                delete mesh;
+            m_TriangleMeshes.clear();
         }
 
-        btRigidBody *CreateKinematicMeshCollider(btDiscreteDynamicsWorld *world, Az::Mesh *mesh, void *userPtr, bool applyScaleAndPivot)
-        {
-            // Get local AABB
-            glm::vec3 halfExtents = mesh->GetLocalHalfExtents();
-            glm::vec3 center = mesh->GetCenter();
-
-            if (applyScaleAndPivot)
-            {
-                // Apply mesh model matrix scale
-                glm::vec3 scale;
-                scale.x = glm::length(mesh->modelMatrix[0]);
-                scale.y = glm::length(mesh->modelMatrix[1]);
-                scale.z = glm::length(mesh->modelMatrix[2]);
-                halfExtents *= scale;
-
-                // Compute pivot offset
-                glm::vec4 meshCenter = mesh->modelMatrix * glm::vec4(center, 1.0f);
-                center = glm::vec3(meshCenter);
-            }
-
-            // Create Bullet box shape
-            btBoxShape *shape = new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
-
-            // Compute world transform from final center
-            btTransform transform;
-            transform.setIdentity();
-            transform.setOrigin(btVector3(center.x, center.y, center.z));
-
-            btDefaultMotionState *motion = new btDefaultMotionState(transform);
-            btRigidBody::btRigidBodyConstructionInfo ci(0.0f, motion, shape, btVector3(0, 0, 0));
-            btRigidBody *body = new btRigidBody(ci);
-            body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-            body->setActivationState(DISABLE_DEACTIVATION);
-
-            body->setUserPointer(userPtr);
-            world->addRigidBody(body);
-            return body;
-        }
     }
 }

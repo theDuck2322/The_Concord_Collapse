@@ -19,6 +19,8 @@ namespace Crd
         // Get player position for camera
         glm::vec3 GetHeadPosition() const;
 
+        glm::vec3 GetForwardRay(float length = 1.0f);
+
         void TryPickupProp(Crd::Object::Prop *prop);
         void DropHeldProp();
         bool IsHoldingProp() const { return m_HoldingProp != nullptr; }
