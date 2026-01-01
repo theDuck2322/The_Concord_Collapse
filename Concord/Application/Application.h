@@ -46,7 +46,7 @@ namespace Crd
         Az::DEBUG_Renderer m_DBR;
 
         bool m_WireframeMode = false;
-        bool m_DebugDraw = false;
+        bool m_DebugDraw = true;
 
         Az::Shader m_Shader;
         Az::Shader m_DEBUG_SHADER;

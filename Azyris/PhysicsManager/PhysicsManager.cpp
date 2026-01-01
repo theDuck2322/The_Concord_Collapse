@@ -223,7 +223,11 @@ namespace Az
             if (mass != 0.0f)
                 hull->calculateLocalInertia(mass, inertia);
 
-            btDefaultMotionState *motionState = new btDefaultMotionState(btTransform::getIdentity());
+            btTransform transform;
+            transform.setIdentity();
+            transform.setOrigin(Az::ConvertGLMVec3(mesh->GetCenter()));
+
+            btDefaultMotionState *motionState = new btDefaultMotionState(transform);
             btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, hull, inertia);
             btRigidBody *body = new btRigidBody(rbInfo);
 

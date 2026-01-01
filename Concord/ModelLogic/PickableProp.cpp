@@ -136,6 +136,8 @@ namespace Crd
 
         glm::mat4 *Prop::GetModelMatrix()
         {
+            if (!m_RigidBody)
+                return nullptr;
             btTransform trans;
             m_RigidBody->getMotionState()->getWorldTransform(trans);
             m_Position = Az::ConvertBTVec3(trans.getOrigin());
