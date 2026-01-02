@@ -17,10 +17,10 @@ Done:
 	
 	- Fix the physics manager
 	- add an id system for physics manager so u get a number, with it u get the rigid body
+	- implement the rest of the functions
 
 left to do:
 
-	- implement the rest of the functions
 	- EMERGENCY - Refactor the code for model logic because its poor written
 
 

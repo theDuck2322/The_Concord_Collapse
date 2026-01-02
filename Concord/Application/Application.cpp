@@ -48,7 +48,9 @@ namespace Crd
             if (event->type == SDL_EVENT_GAMEPAD_REMOVED)
             {
                 m_Player.GetGamepad()->DisableGamepad();
+#ifdef AZ_DEBUG
                 std::cout << "Gamepad disconected" << std::endl;
+#endif
             }
 
             SDL_UpdateGamepads();
@@ -83,16 +85,11 @@ namespace Crd
     {
         if (m_InitWindow(title, width, height))
         {
+#ifdef AZ_DEBUG
             std::cout << "Failed to create the window" << std::endl;
+#endif
             return true;
         }
-#ifdef AZ_DEBUG
-#pragma message("DEBUG BUILD")
-        std::cout << "Debug Mode" << std::endl;
-#else
-#pragma message("RELEASE BUILD")
-        std::cout << "Release Mode" << std::endl;
-#endif
 
         m_InitSystems();
         m_LoadAssets();

@@ -85,7 +85,9 @@ namespace Crd
                             if (ctrlPtr->GetRigidBody() == hitBody && condition)
                             {
                                 ctrlPtr->SetActive(!ctrlPtr->IsActive());
+#ifdef AZ_DEBUG
                                 std::cout << "Ray hit controller ID: " << id << std::endl;
+#endif
                             }
                         }
                     }
@@ -157,9 +159,15 @@ namespace Crd
 
                         btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
-                            std::cout << "Body was not created" << std::endl;
+                        {
+#ifdef AZ_DEBUG
+                            std::cout << "BUTTON Body was not created" << std::endl;
+#endif
+                        }
 
+#ifdef AZ_DEBUG
                         printInput(input);
+#endif
                         button->SetRigidBody(body);
                         ctrl = std::move(button);
 
@@ -172,7 +180,11 @@ namespace Crd
                         size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, swtch.get());
                         btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
-                            std::cout << "Body was not created" << std::endl;
+                        {
+#ifdef AZ_DEBUG
+                            std::cout << "SWITCH Body was not created" << std::endl;
+#endif
+                        }
 
                         swtch->SetRigidBody(body);
                         ctrl = std::move(swtch);
@@ -186,9 +198,14 @@ namespace Crd
                         size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, sdor.get(), true);
                         btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
-                            std::cout << "Body was not created" << std::endl;
-
+                        {
+#ifdef AZ_DEBUG
+                            std::cout << "SIMPLE_DOOR Body was not created" << std::endl;
+#endif
+                        }
+#ifdef AZ_DEBUG
                         printInput(input);
+#endif
                         sdor->SetRigidBody(body);
                         ctrl = std::move(sdor);
                         break;
@@ -200,9 +217,14 @@ namespace Crd
                         size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, ssdor.get(), true);
                         btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
-                            std::cout << "Body was not created" << std::endl;
-
+                        {
+#ifdef AZ_DEBUG
+                            std::cout << "SIMPLE_SLIDE_DOOR Body was not created" << std::endl;
+#endif
+                        }
+#ifdef AZ_DEBUG
                         printInput(input);
+#endif
                         ssdor->SetRigidBody(body);
                         ctrl = std::move(ssdor);
 
@@ -232,9 +254,14 @@ namespace Crd
                         size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, door.get());
                         btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
-                            std::cout << "Body was not created" << std::endl;
-
+                        {
+#ifdef AZ_DEBUG
+                            std::cout << "DOOR Body was not created" << std::endl;
+#endif
+                        }
+#ifdef AZ_DEBUG
                         printInput(input);
+#endif
                         door->SetRigidBody(body);
                         obj = std::move(door);
 
@@ -247,9 +274,14 @@ namespace Crd
                         size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, slDoor.get());
                         btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
                         if (!body)
-                            std::cout << "Body was not created" << std::endl;
+                        {
+#ifdef AZ_DEBUG
+                            std::cout << "SLIDE_DOOR Body was not created" << std::endl;
+#endif
+                        }
+#ifdef AZ_DEBUG
                         printInput(input);
-
+#endif
                         slDoor->SetRigidBody(body);
                         obj = std::move(slDoor);
 
@@ -294,13 +326,18 @@ namespace Crd
                             ctrl->AddControlled(obj.get());
                         }
                     }
+#ifdef AZ_DEBUG
                     std::cout << "Connection was made" << std::endl;
+#endif
                 }
+#ifdef AZ_DEBUG
+
                 else if (input.id2 != 0)
                 {
                     std::cout << "Warning: Controller id " << input.id1
                               << " references missing controlled id " << input.id2 << std::endl;
                 }
+#endif
             }
         }
         void LogicProcessor::m_CreatePickables()

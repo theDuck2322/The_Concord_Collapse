@@ -28,7 +28,10 @@ namespace Az
 
         if (m_WindowPtr == NULL)
         {
+#ifdef AZ_DEBUG
             std::cout << "The window was not created" << std::endl;
+
+#endif
             return EXIT_FAILURE;
         }
 
@@ -36,7 +39,9 @@ namespace Az
         m_Context = SDL_GL_CreateContext(m_WindowPtr);
         if (!m_Context)
         {
+#ifdef AZ_DEBUG
             std::cout << "OpenGL context could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+#endif
             SDL_DestroyWindow(m_WindowPtr);
             SDL_Quit();
             return EXIT_FAILURE;
@@ -45,7 +50,9 @@ namespace Az
         // Load OpenGL functions using GLAD
         if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
         {
+#ifdef AZ_DEBUG
             std::cout << "Failed to initialize GLAD!" << std::endl;
+#endif
             SDL_GL_DestroyContext(m_Context);
             SDL_DestroyWindow(m_WindowPtr);
             SDL_Quit();
@@ -84,7 +91,6 @@ namespace Az
 
     void Screen::SwapBuffers()
     {
-        // std::cout << "DrawCalls: " << Az::GetDrawCallsCounters() << std::endl;
         SDL_GL_SwapWindow(m_WindowPtr);
         ResetDrawCallCounter();
     }
@@ -95,29 +101,34 @@ namespace Az
         std::filesystem::path parentDir = currentDir.parent_path();
         std::string folderName = currentDir.filename().string();
 
+#ifdef AZ_DEBUG
         std::cout << "Current Folder: " << folderName << std::endl;
+#endif
 
         if (folderName == "Debug")
         {
             currentDir = parentDir.parent_path();
             std::filesystem::current_path(currentDir);
-
+#ifdef AZ_DEBUG
             std::cout << "Changed working directory to: " << std::filesystem::current_path() << std::endl;
+#endif
         }
 
         else if (folderName == "Release")
         {
             currentDir = parentDir.parent_path();
             std::filesystem::current_path(currentDir);
-
+#ifdef AZ_DEBUG
             std::cout << "Changed working directory to: " << std::filesystem::current_path() << std::endl;
+#endif
         }
         else if (folderName == "build")
         {
             currentDir = parentDir;
             std::filesystem::current_path(currentDir);
-
+#ifdef AZ_DEBUG
             std::cout << "Changed working directory to: " << std::filesystem::current_path() << std::endl;
+#endif
         }
         return false;
     }

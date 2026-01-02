@@ -25,7 +25,10 @@ namespace Az
 
         if (!data)
         {
-            std::cerr << "Failed to load texture: " << path << std::endl;
+#ifdef AZ_DEBUG
+            std::cout << "Failed to load texture: " << path << std::endl;
+
+#endif
             return 0;
         }
 
@@ -75,7 +78,9 @@ namespace Az
 
         if (!data)
         {
-            std::cerr << "Failed to load embedded texture" << std::endl;
+#ifdef AZ_DEBUG
+            std::cout << "Failed to load embedded texture" << std::endl;
+#endif
             return 0;
         }
 
@@ -127,7 +132,9 @@ namespace Az
     {
         if (!EndsWith(path, ".gltf") && !EndsWith(path, ".glb"))
         {
+#ifdef AZ_DEBUG
             std::cout << "Check for extension name" << std::endl;
+#endif
             throw std::runtime_error("Only glTF / GLB models supported");
         }
 
@@ -140,7 +147,9 @@ namespace Az
 
         if (!scene || !scene->mRootNode)
         {
+#ifdef AZ_DEBUG
             std::cout << "Path may be incorrect" << std::endl;
+#endif
             throw std::runtime_error(importer.GetErrorString());
         }
 
@@ -262,7 +271,9 @@ namespace Az
             result.hasTransparency = true;
         }
 
+#ifdef AZ_DEBUG
         std::cout << result.nodeName << std::endl;
+#endif
 
         return result;
     }

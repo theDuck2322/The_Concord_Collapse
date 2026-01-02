@@ -8,7 +8,9 @@ namespace Az
     {
         if (m_IsConnected == true)
         {
+#ifdef AZ_DEBUG
             std::cout << "Controller already connected!" << std::endl;
+#endif
             return false;
         }
 
@@ -17,11 +19,15 @@ namespace Az
 
         if (!m_JoystickPtr)
         {
+#ifdef AZ_DEBUG
             std::cout << "SDL_GetGamepads failed: " << SDL_GetError() << "\n";
+#endif
             SDL_Quit();
             return 1;
         }
+#ifdef AZ_DEBUG
         std::cout << "Found " << count << " gamepad(s)\n";
+#endif
         m_JoystickID = m_JoystickPtr[0];
         m_Gamepad = SDL_OpenGamepad(m_JoystickID);
         if (count > 0)
@@ -30,13 +36,17 @@ namespace Az
             if (m_Gamepad)
             {
                 const char *name = SDL_GetGamepadNameForID(m_JoystickID);
+#ifdef AZ_DEBUG
                 std::cout << "Opened gamepad 0: " << (name ? name : "Unknown") << "\n";
+#endif
                 m_IsConnected = true;
                 return false;
             }
             else
             {
+#ifdef AZ_DEBUG
                 std::cout << "SDL_OpenGamepad failed: " << SDL_GetError() << "\n";
+#endif
                 m_IsConnected = false;
                 return true;
             }

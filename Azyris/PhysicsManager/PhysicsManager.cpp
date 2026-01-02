@@ -256,12 +256,18 @@ namespace Az
         {
             if (id >= m_Bodies.size())
             {
+#ifdef AZ_DEBUG
                 std::cout << "Id out of bounds" << std::endl;
+#endif
                 return nullptr;
             }
 
             if (m_Bodies[id] == nullptr)
+            {
+#ifdef AZ_DEBUG
                 std::cout << "Collider with ID: " << id << " is nullptr" << std::endl;
+#endif
+            }
 
             return m_Bodies[id];
         }
@@ -270,13 +276,17 @@ namespace Az
         {
             if (id >= m_Bodies.size())
             {
+#ifdef AZ_DEBUG
                 std::cout << "Id out of bounds" << std::endl;
+#endif
                 return;
             }
             auto body = GetRigidbodyById(id);
             if (body == nullptr)
             {
+#ifdef AZ_DEBUG
                 std::cout << "RigidBody already deleted" << std::endl;
+#endif
                 return;
             }
 
@@ -329,6 +339,5 @@ namespace Az
                 delete mesh;
             m_TriangleMeshes.clear();
         }
-
     }
 }

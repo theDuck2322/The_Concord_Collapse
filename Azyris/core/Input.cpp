@@ -17,14 +17,6 @@ namespace Az
         m_PreviousMouseButtons = 0;
         m_MousePosition = {0.0f, 0.0f};
         m_RelativeMousePosition = {0.0f, 0.0f};
-
-        // Register keys you support (or dynamically insert when first used)
-        // m_CurrentKeys[AZ_W] = false;
-        // m_CurrentKeys[AZ_A] = false;
-        // m_CurrentKeys[AZ_S] = false;
-        // m_CurrentKeys[AZ_D] = false;
-        // m_CurrentKeys[AZ_ESCAPE] = false;
-        // m_CurrentKeys[AZ_SPACE] = false;
     }
 
     void Input::Update()

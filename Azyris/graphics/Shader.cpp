@@ -19,7 +19,9 @@ namespace Az
         glAttachShader(programID, fragmentShader);
         if (linkProgram())
         {
-            std::cerr << "Failed to link program" << std::endl;
+#ifdef AZ_DEBUG
+            std::cout << "Failed to link program" << std::endl;
+#endif
             return EXIT_FAILURE;
         }
 
@@ -34,11 +36,14 @@ namespace Az
         std::ifstream shaderFile(path);
         if (!shaderFile.is_open())
         {
+#ifdef AZ_DEBUG
             std::cerr << "Failed to open shader file: " << path << std::endl;
+#endif
             return 0;
         }
-
+#ifdef AZ_DEBUG
         std::cout << "Shader Loaded Successfully: " << path << std::endl;
+#endif
 
         std::stringstream shaderStream;
         shaderStream << shaderFile.rdbuf();
@@ -65,7 +70,9 @@ namespace Az
         {
             char infoLog[512];
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-            std::cerr << "Shader Compilation Failed: " << infoLog << std::endl;
+#ifdef AZ_DEBUG
+            std::cout << "Shader Compilation Failed: " << infoLog << std::endl;
+#endif
             return EXIT_FAILURE;
         }
 
@@ -82,7 +89,9 @@ namespace Az
         {
             char infoLog[512];
             glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-            std::cerr << "Program Linking Failed: " << infoLog << std::endl;
+#ifdef AZ_DEBUG
+            std::cout << "Program Linking Failed: " << infoLog << std::endl;
+#endif
             return EXIT_FAILURE;
         }
 
