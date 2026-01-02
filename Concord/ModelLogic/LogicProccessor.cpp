@@ -3,6 +3,13 @@
 #include <Utils/Helpers.h>
 #include "LogicProccessor.h"
 
+#include <Button.h>
+#include <Switch.h>
+#include <Door.h>
+#include <SlideDoor.h>
+#include <SimpleDoor.h>
+#include <SimpleSlideDoor.h>
+
 namespace Crd
 {
     namespace MdLogic
