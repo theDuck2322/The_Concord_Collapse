@@ -10,6 +10,8 @@
 #include <SimpleDoor.h>
 #include <SimpleSlideDoor.h>
 
+#include <ProcessHelper.h>
+
 namespace Crd
 {
     namespace MdLogic
@@ -76,35 +78,26 @@ namespace Crd
 
         void LogicProcessor::RaycastLogic(const btVector3 &from, const btVector3 &to, bool condition)
         {
+            if (!condition)
+                return;
+
             btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
             m_ManagerPtr->GetWorld()->rayTest(from, to, rayCallback);
 
-            if (rayCallback.hasHit())
-            {
-                const btRigidBody *hitBody = btRigidBody::upcast(rayCallback.m_collisionObject);
-                if (hitBody)
-                {
-                    // Compare with controller rigid bodies
-                    for (auto &[id, ctrlVec] : m_Controllers)
-                    {
-                        for (auto &ctrlPtr : ctrlVec)
-                        {
-                            if (ctrlPtr->GetRigidBody() == hitBody && condition)
-                            {
-                                ctrlPtr->SetActive(!ctrlPtr->IsActive());
-#ifdef AZ_DEBUG
-                                std::cout << "Ray hit controller ID: " << id << std::endl;
-#endif
-                            }
-                        }
-                    }
-                }
-            }
+            if (!rayCallback.hasHit())
+                return;
+
+            const btRigidBody *hitBody = btRigidBody::upcast(rayCallback.m_collisionObject);
+            if (!hitBody)
+                return;
+
+            for (auto &[id, ctrls] : m_Controllers)
+                for (auto &ctrl : ctrls)
+                    if (ctrl->GetRigidBody() == hitBody)
+                        ctrl->SetActive(!ctrl->IsActive());
         }
 
-        /// think on how to implement this
-        Crd::Object::Prop *LogicProcessor::RaycastProp(
-            const btVector3 &from, const btVector3 &to, bool condition)
+        Crd::Object::Prop *LogicProcessor::RaycastProp(const btVector3 &from, const btVector3 &to, bool condition)
         {
             if (!condition)
                 return nullptr;
@@ -115,17 +108,13 @@ namespace Crd
             if (!rayCallback.hasHit())
                 return nullptr;
 
-            const btRigidBody *hitBody =
-                btRigidBody::upcast(rayCallback.m_collisionObject);
-
+            const btRigidBody *hitBody = btRigidBody::upcast(rayCallback.m_collisionObject);
             if (!hitBody)
                 return nullptr;
 
             for (auto &prop : m_Pickables)
-            {
                 if (prop->GetRigidbody() == hitBody)
                     return prop.get();
-            }
 
             return nullptr;
         }
@@ -143,166 +132,50 @@ namespace Crd
             m_Controllers.clear();
             m_Controlleds.clear();
 
-            for (auto &p : *m_Data)
+            for (auto &[mesh, input] : *m_Data)
             {
-                Az::Mesh *mesh = p.first;
-                Crd::MdIsp::ParsedInput &input = p.second;
-
                 if (!input.valid)
                     continue;
 
                 if (input.controllType == CONTROLLER)
                 {
-                    std::unique_ptr<MdController> ctrl = nullptr;
-
+                    std::unique_ptr<MdController> ctrl;
                     switch (input.funcType)
                     {
                     case Crd::MdIsp::FunctionalityType::BUTTON:
-                    {
-                        auto button = std::make_unique<Button>();
-                        button->SetMesh(mesh);
-
-                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, button.get());
-
-                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
-                        if (!body)
-                        {
-#ifdef AZ_DEBUG
-                            std::cout << "BUTTON Body was not created" << std::endl;
-#endif
-                        }
-
-#ifdef AZ_DEBUG
-                        printInput(input);
-#endif
-                        button->SetRigidBody(body);
-                        ctrl = std::move(button);
-
+                        ctrl = Internal::CreateController<Button>(mesh, input, m_ManagerPtr);
                         break;
-                    }
                     case Crd::MdIsp::FunctionalityType::SWITCH:
-                    {
-                        auto swtch = std::make_unique<Switch>();
-                        swtch->SetMesh(mesh);
-                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, swtch.get());
-                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
-                        if (!body)
-                        {
-#ifdef AZ_DEBUG
-                            std::cout << "SWITCH Body was not created" << std::endl;
-#endif
-                        }
-
-                        swtch->SetRigidBody(body);
-                        ctrl = std::move(swtch);
-
+                        ctrl = Internal::CreateController<Switch>(mesh, input, m_ManagerPtr);
                         break;
-                    }
                     case Crd::MdIsp::FunctionalityType::SIMPLE_DOOR:
-                    {
-                        auto sdor = std::make_unique<SimpleDoor>();
-                        sdor->SetMesh(mesh);
-                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, sdor.get(), true);
-                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
-                        if (!body)
-                        {
-#ifdef AZ_DEBUG
-                            std::cout << "SIMPLE_DOOR Body was not created" << std::endl;
-#endif
-                        }
-#ifdef AZ_DEBUG
-                        printInput(input);
-#endif
-                        sdor->SetRigidBody(body);
-                        ctrl = std::move(sdor);
+                        ctrl = Internal::CreateController<SimpleDoor>(mesh, input, m_ManagerPtr, true);
                         break;
-                    }
                     case Crd::MdIsp::FunctionalityType::SIMPLE_SLIDE_DOOR:
-                    {
-                        auto ssdor = std::make_unique<SimpleSlideDoor>();
-                        ssdor->SetMesh(mesh);
-                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, ssdor.get(), true);
-                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
-                        if (!body)
-                        {
-#ifdef AZ_DEBUG
-                            std::cout << "SIMPLE_SLIDE_DOOR Body was not created" << std::endl;
-#endif
-                        }
-#ifdef AZ_DEBUG
-                        printInput(input);
-#endif
-                        ssdor->SetRigidBody(body);
-                        ctrl = std::move(ssdor);
-
+                        ctrl = Internal::CreateController<SimpleSlideDoor>(mesh, input, m_ManagerPtr, true);
                         break;
-                    }
-
                     default:
                         break;
                     }
-
                     if (ctrl)
-                    {
-                        ctrl->SetParsedInput(&input);
                         m_Controllers[input.id1].push_back(std::move(ctrl));
-                    }
                 }
                 else if (input.controllType == CONTROLLED)
                 {
-                    std::unique_ptr<MdControlled> obj = nullptr;
-
+                    std::unique_ptr<MdControlled> obj;
                     switch (input.funcType)
                     {
                     case Crd::MdIsp::FunctionalityType::DOOR:
-                    {
-                        auto door = std::make_unique<Door>();
-                        door->SetMesh(mesh);
-                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, door.get());
-                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
-                        if (!body)
-                        {
-#ifdef AZ_DEBUG
-                            std::cout << "DOOR Body was not created" << std::endl;
-#endif
-                        }
-#ifdef AZ_DEBUG
-                        printInput(input);
-#endif
-                        door->SetRigidBody(body);
-                        obj = std::move(door);
-
+                        obj = Internal::CreateControlled<Door>(mesh, input, m_ManagerPtr);
                         break;
-                    }
                     case Crd::MdIsp::FunctionalityType::SLIDE_DOOR:
-                    {
-                        auto slDoor = std::make_unique<SlideDoor>();
-                        slDoor->SetMesh(mesh);
-                        size_t id = m_ManagerPtr->CreateKinematicMeshCollider(mesh, slDoor.get());
-                        btRigidBody *body = m_ManagerPtr->GetRigidbodyById(id);
-                        if (!body)
-                        {
-#ifdef AZ_DEBUG
-                            std::cout << "SLIDE_DOOR Body was not created" << std::endl;
-#endif
-                        }
-#ifdef AZ_DEBUG
-                        printInput(input);
-#endif
-                        slDoor->SetRigidBody(body);
-                        obj = std::move(slDoor);
-
+                        obj = Internal::CreateControlled<SlideDoor>(mesh, input, m_ManagerPtr);
                         break;
-                    }
                     default:
                         break;
                     }
-
                     if (obj)
-                    {
-                        obj->SetParsedInput(&input);
                         m_Controlleds[input.id1].push_back(std::move(obj));
-                    }
                 }
             }
         }
@@ -312,66 +185,48 @@ namespace Crd
             if (!m_Data)
                 return;
 
-            for (auto &p : *m_Data)
+            for (auto &[mesh, input] : *m_Data)
             {
-                Crd::MdIsp::ParsedInput &input = p.second;
                 if (!input.valid || input.controllType != CONTROLLER)
                     continue;
 
-                auto itCtrls = m_Controllers.find(input.id1);
-                if (itCtrls == m_Controllers.end())
+                auto itCtrl = m_Controllers.find(input.id1);
+                if (itCtrl == m_Controllers.end())
                     continue;
 
-                auto itObjs = m_Controlleds.find(input.id2);
-
-                if (input.id2 != 0 && itObjs != m_Controlleds.end())
+                if (input.id2 != 0)
                 {
-                    for (auto &ctrl : itCtrls->second)
+                    auto itObj = m_Controlleds.find(input.id2);
+                    if (itObj != m_Controlleds.end())
                     {
-                        for (auto &obj : itObjs->second)
-                        {
-                            ctrl->AddControlled(obj.get());
-                        }
+                        for (auto &ctrl : itCtrl->second)
+                            for (auto &obj : itObj->second)
+                                ctrl->AddControlled(obj.get());
+#ifdef AZ_DEBUG
+                        std::cout << "Controller " << input.id1 << " bound to Controlled " << input.id2 << std::endl;
+#endif
                     }
 #ifdef AZ_DEBUG
-                    std::cout << "Connection was made" << std::endl;
+                    else
+                    {
+                        std::cout << "Controller " << input.id1 << " references missing Controlled " << input.id2 << std::endl;
+                    }
 #endif
                 }
-#ifdef AZ_DEBUG
-
-                else if (input.id2 != 0)
-                {
-                    std::cout << "Warning: Controller id " << input.id1
-                              << " references missing controlled id " << input.id2 << std::endl;
-                }
-#endif
             }
         }
+
         void LogicProcessor::m_CreatePickables()
         {
             if (!m_PickableObjects)
                 return;
 
             m_Pickables.clear();
-
-            for (auto &p : *m_PickableObjects)
+            for (auto &[mesh, input] : *m_PickableObjects)
             {
-                Az::Mesh *mesh = p.first;
-                Crd::MdIsp::ParsedInput &input = p.second;
-
                 if (!input.valid)
                     continue;
-
-                auto prop = std::make_unique<Crd::Object::Prop>();
-                prop->SetMesh(mesh);
-                size_t id = m_ManagerPtr->CreateConvexHullBody(mesh, 1.0f);
-                auto body = m_ManagerPtr->GetRigidbodyById(id);
-                body->setFriction(1.0f);
-                body->setDamping(0.5f, 0.5f);
-                prop->SetRigidBody(body);
-                prop->Init();
-
-                m_Pickables.emplace_back(std::move(prop));
+                m_Pickables.push_back(Internal::CreatePickable(mesh, m_ManagerPtr));
             }
         }
     }
