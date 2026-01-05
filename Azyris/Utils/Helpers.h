@@ -73,4 +73,6 @@ namespace Az
     glm::quat ConvertBTQuat(const btQuaternion &qt);
 
     btQuaternion ConvertGLMQuat(const glm::quat &quat);
+
+    btTransform mat4ToBtTransform(const glm::mat4 &m);
 };

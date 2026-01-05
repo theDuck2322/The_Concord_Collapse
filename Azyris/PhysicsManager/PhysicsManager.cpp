@@ -242,6 +242,64 @@ namespace Az
             return m_CurrentID++;
         }
 
+        size_t PhysicsManager::CreateMeshColliderFromModel(Az::Model *model, float mass, bool disableDeactivation)
+        {
+            btCompoundShape *compoundShape = new btCompoundShape();
+
+            for (auto &mesh : model->meshes)
+            {
+                btConvexHullShape *hull = new btConvexHullShape();
+
+                for (const auto &vertex : mesh.vertices)
+                {
+                    hull->addPoint(Az::ConvertGLMVec3(vertex.Position), false);
+                }
+
+                hull->recalcLocalAabb();
+                hull->optimizeConvexHull();
+                hull->initializePolyhedralFeatures();
+
+                btTransform childTransform =
+                    Az::mat4ToBtTransform(mesh.modelMatrix);
+
+                compoundShape->addChildShape(childTransform, hull);
+
+                m_Shapes.push_back(hull);
+            }
+
+            // Calculate inertia
+            btVector3 inertia(0, 0, 0);
+            if (mass > 0.0f)
+            {
+                compoundShape->calculateLocalInertia(mass, inertia);
+            }
+
+            // Root transform (identity)
+            btTransform startTransform;
+            startTransform.setIdentity();
+
+            btDefaultMotionState *motionState =
+                new btDefaultMotionState(startTransform);
+
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(
+                mass,
+                motionState,
+                compoundShape,
+                inertia);
+
+            btRigidBody *body = new btRigidBody(rbInfo);
+
+            if (disableDeactivation)
+                body->setActivationState(DISABLE_DEACTIVATION);
+
+            m_DynamicsWorld.addRigidBody(body);
+
+            m_Bodies.push_back(body);
+            m_Shapes.push_back(compoundShape);
+
+            return m_CurrentID++;
+        }
+
         std::vector<btRigidBody *> *PhysicsManager::GetRigidbodies()
         {
             return &m_Bodies;

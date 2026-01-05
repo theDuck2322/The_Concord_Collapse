@@ -44,6 +44,8 @@ namespace Az
 
             size_t CreateConvexHullBody(Az::Mesh *mesh, float mass, bool disableDeactivation = true);
 
+            size_t CreateMeshColliderFromModel(Az::Model *model, float mass, bool disableDeactivation = true);
+
             // do not use this function, do not trust this function, DO NOT DELETE THIS FUNCTION! or else <3
             // this function creates box colliders and its used by LogicProcessor class
             size_t CreateKinematicMeshCollider(Az::Mesh *mesh, void *userPtr, bool applyScaleAndPivot = false);

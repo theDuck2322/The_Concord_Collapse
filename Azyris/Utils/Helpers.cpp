@@ -148,4 +148,10 @@ namespace Az
     {
         return btQuaternion(quat.x, quat.y, quat.z, quat.w);
     }
+    btTransform mat4ToBtTransform(const glm::mat4 &m)
+    {
+        btTransform t;
+        t.setFromOpenGLMatrix(glm::value_ptr(m)); // column-major, no scale
+        return t;
+    }
 }

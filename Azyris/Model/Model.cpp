@@ -274,6 +274,39 @@ namespace Az
 #ifdef AZ_DEBUG
         std::cout << result.nodeName << std::endl;
 #endif
+        if (node->mMetaData)
+        {
+            std::cout << node->mMetaData->mNumProperties << std::endl;
+            for (unsigned int i = 0; i < node->mMetaData->mNumProperties; ++i)
+            {
+                const aiString &key = node->mMetaData->mKeys[i];
+                const aiMetadataEntry &entry = node->mMetaData->mValues[i];
+
+                if (entry.mType == AI_AISTRING)
+                {
+                    const aiString &value = *static_cast<aiString *>(entry.mData);
+
+                    std::cout << "META [" << key.C_Str()
+                              << "] = " << value.C_Str() << std::endl;
+#
+
+                    // Example usage
+                    if (std::string(key.C_Str()) == "game.transparent" && std::string(value.C_Str()) == "true")
+                    {
+                        result.hasTransparency = true;
+                    }
+                }
+                else if (entry.mType == AI_INT32)
+                {
+                    int v = *static_cast<int *>(entry.mData);
+                    // handle ints if needed
+                }
+                else if (entry.mType == AI_FLOAT)
+                {
+                    float v = *static_cast<float *>(entry.mData);
+                }
+            }
+        }
 
         return result;
     }

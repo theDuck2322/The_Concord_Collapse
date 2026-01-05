@@ -140,11 +140,16 @@ namespace Crd
         m_Sphere.load("Azyris/Assets/ball.glb");
         m_Cube.load("Azyris/Assets/bx.glb");
         m_Props.load("Azyris/Assets/pickable.glb");
+        m_Base_Elevator.load("Azyris/Assets/Base_Elevator.glb");
+        m_Coll_Elevator.load("Azyris/Assets/Collision_Elevator.glb");
+
+        Az::Model metaTest("Azyris/Assets/metaTest.glb");
     }
 
     size_t SceneID;
     size_t SphereID;
     size_t CubeID;
+    size_t ElevatorID;
     std::vector<glm::vec3> SceneColliderLines;
 
     ///-------------------------------------- Physics Initialization ------------------------------
@@ -167,6 +172,10 @@ namespace Crd
         auto boxrb = m_PhysicsManager.GetRigidbodyById(CubeID);
         boxrb->setFriction(1.0f);
         boxrb->setDamping(0.5f, 0.5f);
+
+        ElevatorID = m_PhysicsManager.CreateMeshColliderFromModel(&m_Coll_Elevator, 0.0f);
+        auto ElevatorRB = m_PhysicsManager.GetRigidbodyById(ElevatorID);
+        ElevatorRB->setFriction(1.0f);
 
         Az::physx::DebugLineCollector collector(SceneColliderLines);
 
@@ -270,6 +279,7 @@ namespace Crd
 
         m_Renderer.AddModel(&m_Scene);
         m_Renderer.AddModel(&m_LogicModel);
+        m_Renderer.AddModel(&m_Base_Elevator);
 
         btTransform trans;
         m_PhysicsManager.GetRigidbodyById(SphereID)->getMotionState()->getWorldTransform(trans);

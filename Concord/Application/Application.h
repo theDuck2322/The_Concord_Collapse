@@ -42,6 +42,8 @@ namespace Crd
         Az::Model m_LogicModel;
         Az::Model m_Cube;
         Az::Model m_Props;
+        Az::Model m_Base_Elevator;
+        Az::Model m_Coll_Elevator;
 
         Az::DEBUG_Renderer m_DBR;
 
