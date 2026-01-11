@@ -53,9 +53,13 @@ namespace Az
                 else
                 {
                     // if (TestOBBFrustum(mesh.GetOBB_Mat4(matrix), *m_Frustum))
-                    {
-                        mesh.Draw(*m_Shader, matrix);
-                    }
+                    //{
+                    //    mesh.Draw(*m_Shader, *matrix);
+                    //}
+                    if (matrix)
+                        mesh.Draw(*m_Shader, *matrix);
+                    else
+                        mesh.Draw(*m_Shader);
                 }
             }
         }
@@ -70,7 +74,10 @@ namespace Az
             }
             else
             {
-                mesh->Draw(*m_Shader, matrix);
+                if (matrix)
+                    mesh->Draw(*m_Shader, *matrix);
+                else
+                    mesh->Draw(*m_Shader);
             }
         }
     }
@@ -102,7 +109,10 @@ namespace Az
             auto matrix = item.second.second;
             // if (TestOBBFrustum(mesh->GetOBB_Mat4(matrix), *m_Frustum))
             {
-                mesh->Draw(*m_Shader, matrix);
+                if (matrix)
+                    mesh->Draw(*m_Shader, *matrix);
+                else
+                    mesh->Draw(*m_Shader);
             }
         }
 

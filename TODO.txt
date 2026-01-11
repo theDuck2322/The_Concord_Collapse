@@ -1,3 +1,10 @@
+///////////////////////////////
+
+REMINDER, CREATE THE MESH USING THE GLB TRANSFORM, IF U ADD A PHYSICS COLLIDER U HAVE TO CREATE IT USING
+THE GLB MATRIX AND THEN SET IT TO IDENTITY, WHEN U DRAW IT USE THE PHYSICS TRANSFORM!!!!!!!
+
+///////////////////////////////
+
 Done:
 - make a drawcall counter (create your draw function that uses opengl draw function 
 			but which increases a counter and u reset it at the end) 
@@ -19,8 +26,12 @@ Done:
 	- add an id system for physics manager so u get a number, with it u get the rigid body
 	- implement the rest of the functions
 	- EMERGENCY - Refactor the code for model logic because its poor written
+	- implemented mesh collider from simplified model
 
 left to do:
+
+	- implement AzPkg asset format for the engine
+
 	- maybe create a structure for when creating a physics object like:
 								- friction
 								- damping

@@ -122,7 +122,7 @@ namespace Az
         load(path);
     }
 
-    void Model::Draw(Shader &shader, const glm::mat4 *overrideModel) const
+    void Model::Draw(Shader &shader, const glm::mat4 &overrideModel) const
     {
         for (const auto &mesh : meshes)
             mesh.Draw(shader, overrideModel);
@@ -152,7 +152,29 @@ namespace Az
 #endif
             throw std::runtime_error(importer.GetErrorString());
         }
+        meshes.clear();
+        processNode(scene->mRootNode, glm::mat4(1.0f));
+    }
 
+    void Model::loadFromMemory(const std::vector<char> &data)
+    {
+        scene = importer.ReadFileFromMemory(
+            data.data(), data.size(),
+            aiProcess_Triangulate |
+                aiProcess_CalcTangentSpace |
+                aiProcess_JoinIdenticalVertices |
+                aiProcess_ValidateDataStructure,
+            "glb");
+
+        if (!scene || !scene->mRootNode)
+        {
+#ifdef AZ_DEBUG
+            std::cout << "Failed to load model from memory" << std::endl;
+#endif
+            throw std::runtime_error(importer.GetErrorString());
+        }
+
+        meshes.clear();
         processNode(scene->mRootNode, glm::mat4(1.0f));
     }
 
@@ -261,9 +283,13 @@ namespace Az
 
         // --- create mesh ---
         Mesh result(vertices, indices, textures, hasTransparency, diffuseColor, hasDiffuseColor);
-        result.modelMatrix = transform;
+        result.localMatrix = transform;
         result.SetPivot(glm::vec3(transform[3])); // translation column
         result.nodeName = node->mName.C_Str();
+
+        glm::vec3 meshPos = glm::vec3(transform[3]);
+        std::cout << result.nodeName + " " << meshPos.x << " " << meshPos.y << " " << meshPos.z << std::endl;
+
         // --- read metadata from node if present ---
 
         if (result.nodeName.compare(0, 6, "transp") == 0)

@@ -26,7 +26,6 @@ namespace Crd
 
         void m_ShutDown();
 
-    private: // Loop functions
     private:
         Az::Screen m_Window;
         Az::Renderer m_Renderer;
@@ -46,6 +45,8 @@ namespace Crd
         Az::Model m_Coll_Elevator;
 
         Az::DEBUG_Renderer m_DBR;
+
+        Az::AzPkgLoader m_ElevatorLoader;
 
         bool m_WireframeMode = false;
         bool m_DebugDraw = false;

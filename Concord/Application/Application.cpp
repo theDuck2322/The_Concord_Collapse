@@ -140,8 +140,17 @@ namespace Crd
         m_Sphere.load("Azyris/Assets/ball.glb");
         m_Cube.load("Azyris/Assets/bx.glb");
         m_Props.load("Azyris/Assets/pickable.glb");
-        m_Base_Elevator.load("Azyris/Assets/Base_Elevator.glb");
-        m_Coll_Elevator.load("Azyris/Assets/Collision_Elevator.glb");
+
+        m_ElevatorLoader.LoadPackage("Azyris/Assets/Elevator.AzPkg");
+
+        auto bElv = m_ElevatorLoader.ExtractToMemory("Model/Base_Elevator.glb");
+        auto cElv = m_ElevatorLoader.ExtractToMemory("Model/Collision_Elevator.glb");
+
+        m_Base_Elevator.loadFromMemory(bElv);
+        m_Coll_Elevator.loadFromMemory(cElv);
+
+        // m_Base_Elevator.load("Azyris/Assets/Base_Elevator.glb");
+        // m_Coll_Elevator.load("Azyris/Assets/Collision_Elevator.glb");
 
         Az::Model metaTest("Azyris/Assets/metaTest.glb");
     }
@@ -173,7 +182,7 @@ namespace Crd
         boxrb->setFriction(1.0f);
         boxrb->setDamping(0.5f, 0.5f);
 
-        ElevatorID = m_PhysicsManager.CreateMeshColliderFromModel(&m_Coll_Elevator, 0.0f);
+        ElevatorID = m_PhysicsManager.CreateMeshCollider(m_Coll_Elevator);
         auto ElevatorRB = m_PhysicsManager.GetRigidbodyById(ElevatorID);
         ElevatorRB->setFriction(1.0f);
 
@@ -239,6 +248,12 @@ namespace Crd
 
         m_LogicProcessor.Update();
 
+        auto ElevatorRB = m_PhysicsManager.GetRigidbodyById(ElevatorID);
+        btTransform t = ElevatorRB->getWorldTransform();
+        t.setOrigin(btVector3(0, Az::Timer::GetTime(), 0));
+        ElevatorRB->setWorldTransform(t);
+        ElevatorRB->getMotionState()->setWorldTransform(t);
+
         btVector3 from = Az::ConvertGLMVec3(m_Player.GetHeadPosition());
 
         btVector3 to = Az::ConvertGLMVec3(m_Player.GetForwardRay(8.0f));
@@ -279,7 +294,6 @@ namespace Crd
 
         m_Renderer.AddModel(&m_Scene);
         m_Renderer.AddModel(&m_LogicModel);
-        m_Renderer.AddModel(&m_Base_Elevator);
 
         btTransform trans;
         m_PhysicsManager.GetRigidbodyById(SphereID)->getMotionState()->getWorldTransform(trans);
@@ -295,6 +309,16 @@ namespace Crd
                            glm::vec3(pos.getX(), pos.getY(), pos.getZ())) *
             glm::mat4_cast(glmRot);
         m_Renderer.AddModel(&m_Sphere, &ballModel);
+
+        m_PhysicsManager.GetRigidbodyById(ElevatorID)->getMotionState()->getWorldTransform(trans);
+
+        pos = trans.getOrigin();
+        // Take the ORIGINAL model matrix
+        glm::mat4 base = m_Base_Elevator.meshes[0].localMatrix;
+        // base[3] = glm::vec4(0, 0, 0, 1);
+
+        glm::mat4 elevatorModel = glm::translate(glm::mat4(1.0f), glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
+        m_Renderer.AddModel(&m_Base_Elevator, &elevatorModel);
 
         for (auto &prop : *m_LogicProcessor.GetProps())
         {

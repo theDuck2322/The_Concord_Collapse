@@ -4,6 +4,9 @@
 #include <iostream>
 #include <cstdint>
 
+#include <AzPkg/AzPkgStructure.h>
+#include <AzPkg/AzPkgLoader.h>
+
 #include <buffers/buffer.h>
 
 #include <core/Window.h>

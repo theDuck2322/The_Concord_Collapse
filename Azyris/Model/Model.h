@@ -19,6 +19,8 @@ namespace Az
         Model() = default;
         Model(const std::string &path);
         void load(const std::string &path);
+        // only glb files are allowed
+        void loadFromMemory(const std::vector<char> &data);
 
         // because of how gltf has a model matrix for each mesh (local position or stuff like that)
         // static objects needs to have use their own model matrix (already loaded) and
@@ -27,7 +29,7 @@ namespace Az
         // the model matrix is already overwritten via: "use your own or the override model?"
         // SO do not try to use Shader::setuniform(model) because its useles if u plan to use this
         // Draw function :))
-        void Draw(Shader &shader, const glm::mat4 *overrideModel = nullptr) const;
+        void Draw(Shader &shader, const glm::mat4 &overrideModel = glm::mat4(1.0f)) const;
 
         std::vector<Mesh> meshes;
 

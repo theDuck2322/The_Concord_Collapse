@@ -89,7 +89,7 @@ namespace Az
         if (!vertices.empty())
             localCenter /= static_cast<float>(vertices.size());
 
-        center = glm::vec3(modelMatrix * glm::vec4(localCenter, 1.0f));
+        center = glm::vec3(localMatrix * glm::vec4(localCenter, 1.0f));
 
         glBindVertexArray(0);
     }
@@ -111,13 +111,13 @@ namespace Az
         }
         else
         {
-            obbTransform = modelMatrix * translation;
+            obbTransform = localMatrix * translation;
         }
 
         return {obbTransform, halfExtents};
     }
 
-    void Mesh::Draw(Shader &shader, const glm::mat4 *overrideModel) const
+    void Mesh::Draw(Shader &shader, const glm::mat4 &overrideModel) const
     {
         shader.use();
 
@@ -134,10 +134,7 @@ namespace Az
         shader.setUniform("hasDiffuseColor", hasDiffuseColor);
         shader.setUniform("materialDiffuseColor", diffuseColor);
 
-        if (overrideModel)
-            shader.setUniform("model", *overrideModel);
-        else
-            shader.setUniform("model", modelMatrix);
+        shader.setUniform("model", overrideModel * localMatrix);
 
         glBindVertexArray(VAO);
 

@@ -16,7 +16,9 @@ namespace Crd
         void Prop::SetMesh(Az::Mesh *mesh)
         {
             m_Mesh = mesh;
-            m_OriginalModel = mesh->modelMatrix;
+            m_Mesh->localMatrix = glm::mat4(1.0f);
+
+            m_OriginalModel = glm::mat4(1.0f);
         }
 
         void Prop::SetRigidBody(btRigidBody *body)
@@ -43,7 +45,9 @@ namespace Crd
             m_RigidBody->getMotionState()->getWorldTransform(transform);
             m_Position = Az::ConvertBTVec3(transform.getOrigin());
             glm::quat quaternion = Az::ConvertBTQuat(transform.getRotation());
-            m_OverrideModel = glm::translate(glm::mat4(1.0f), m_Position) * glm::mat4_cast(quaternion) * m_OriginalModel;
+            m_OverrideModel = glm::translate(glm::mat4(1.0f),
+                                             m_Position) *
+                              glm::mat4_cast(quaternion) * m_OriginalModel;
 
             return false;
         }

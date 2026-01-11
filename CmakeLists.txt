@@ -14,6 +14,7 @@ file(GLOB_RECURSE AZYRIS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/core/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Model/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/AzPkg/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/buffers/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Utils/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/graphics/*.cpp
@@ -27,6 +28,7 @@ target_include_directories(Azyris PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/core
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Model
+    ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/AzPkg
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/buffers
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/Utils
     ${CMAKE_CURRENT_SOURCE_DIR}/Azyris/graphics

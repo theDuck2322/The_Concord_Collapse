@@ -44,7 +44,7 @@ namespace Az
         std::vector<unsigned int> indices;
         std::vector<sTexture> textures;
 
-        glm::mat4 modelMatrix{1.0f};
+        glm::mat4 localMatrix = glm::mat4{1.0f};
 
         bool hasTransparency = false;
         glm::vec4 diffuseColor{1.0f};
@@ -65,7 +65,7 @@ namespace Az
 
         OBB GetOBB_Mat4(glm::mat4 *overrideModel = nullptr) const;
 
-        void Draw(Shader &shader, const glm::mat4 *overrideModel = nullptr) const;
+        void Draw(Shader &shader, const glm::mat4 &overrideModel = glm::mat4(1.0f)) const;
         glm::vec3 GetLocalCenter() const { return localCenter; }
         inline glm::vec3 GetCenter(glm::mat4 *overrideTransform = nullptr) const
         {
@@ -75,7 +75,7 @@ namespace Az
             }
             else
             {
-                return glm::vec3(modelMatrix * glm::vec4(localCenter, 1.0f));
+                return glm::vec3(localMatrix * glm::vec4(localCenter, 1.0f));
             }
         }
         glm::vec3 GetPivot() const { return pivot; }

@@ -50,11 +50,11 @@ namespace Crd
 
             // --- Extract scale from mesh ---
             glm::vec3 scale(
-                glm::length(m_Mesh->modelMatrix[0]),
-                glm::length(m_Mesh->modelMatrix[1]),
-                glm::length(m_Mesh->modelMatrix[2]));
+                glm::length(m_Mesh->localMatrix[0]),
+                glm::length(m_Mesh->localMatrix[1]),
+                glm::length(m_Mesh->localMatrix[2]));
 
-            glm::mat4 modelNoScale = m_Mesh->modelMatrix;
+            glm::mat4 modelNoScale = m_Mesh->localMatrix;
             modelNoScale[0] /= scale.x;
             modelNoScale[1] /= scale.y;
             modelNoScale[2] /= scale.z;
@@ -62,7 +62,7 @@ namespace Crd
             glm::mat4 localTransform = glm::mat4(1.0f);
             glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
 
-            m_Mesh->modelMatrix = modelNoScale * localTransform * scaleMat;
+            m_Mesh->localMatrix = modelNoScale * localTransform * scaleMat;
 
             btBoxShape *box = static_cast<btBoxShape *>(m_RigidBody->getCollisionShape());
             if (box)

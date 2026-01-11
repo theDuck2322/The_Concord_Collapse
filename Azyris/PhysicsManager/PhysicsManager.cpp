@@ -81,7 +81,7 @@ namespace Az
             btTriangleMesh *triangleMesh = new btTriangleMesh();
             for (auto &mesh : model.meshes)
             {
-                glm::mat4 model = mesh.modelMatrix; // GLB node transform
+                glm::mat4 model = mesh.localMatrix; // GLB node transform
 
                 for (size_t i = 0; i < mesh.indices.size(); i += 3)
                 {
@@ -177,13 +177,13 @@ namespace Az
             {
                 // Apply mesh model matrix scale
                 glm::vec3 scale;
-                scale.x = glm::length(mesh->modelMatrix[0]);
-                scale.y = glm::length(mesh->modelMatrix[1]);
-                scale.z = glm::length(mesh->modelMatrix[2]);
+                scale.x = glm::length(mesh->localMatrix[0]);
+                scale.y = glm::length(mesh->localMatrix[1]);
+                scale.z = glm::length(mesh->localMatrix[2]);
                 halfExtents *= scale;
 
                 // Compute pivot offset
-                glm::vec4 meshCenter = mesh->modelMatrix * glm::vec4(center, 1.0f);
+                glm::vec4 meshCenter = mesh->localMatrix * glm::vec4(center, 1.0f);
                 center = glm::vec3(meshCenter);
             }
 
@@ -214,7 +214,8 @@ namespace Az
             btConvexHullShape *hull = new btConvexHullShape();
             for (const auto &vertex : mesh->vertices)
             {
-                hull->addPoint(Az::ConvertGLMVec3(vertex.Position));
+                glm::vec3 worldVertex = glm::vec3(mesh->localMatrix * glm::vec4(vertex.Position, 1.0f));
+                hull->addPoint(Az::ConvertGLMVec3(worldVertex));
             }
             hull->optimizeConvexHull();
             hull->initializePolyhedralFeatures();
@@ -260,7 +261,7 @@ namespace Az
                 hull->initializePolyhedralFeatures();
 
                 btTransform childTransform =
-                    Az::mat4ToBtTransform(mesh.modelMatrix);
+                    Az::mat4ToBtTransform(mesh.localMatrix);
 
                 compoundShape->addChildShape(childTransform, hull);
 

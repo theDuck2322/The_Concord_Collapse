@@ -12,7 +12,7 @@ namespace Crd
                 return;
             }
             m_Mesh = mesh;
-            m_OriginalModel = mesh->modelMatrix;
+            m_OriginalModel = mesh->localMatrix;
             Update(false);
         }
         void Door::Update(bool firstCheck)
@@ -79,7 +79,7 @@ namespace Crd
             glm::mat4 relative = ComputeTransform(angle);
             glm::mat4 finalTransform = modelNoScale * relative * glm::scale(glm::mat4(1.0f), scale);
 
-            m_Mesh->modelMatrix = finalTransform;
+            m_Mesh->localMatrix = finalTransform;
             ApplyTransformToPhysics(modelNoScale * relative);
         }
     }

@@ -11,7 +11,7 @@ namespace Crd
         void SimpleSlideDoor::SetMesh(Az::Mesh *mesh)
         {
             m_Mesh = mesh;
-            m_OriginalModel = mesh->modelMatrix;
+            m_OriginalModel = mesh->localMatrix;
             Update(false);
         }
 
@@ -33,7 +33,7 @@ namespace Crd
 
             glm::mat4 slideMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, offsetX));
 
-            m_Mesh->modelMatrix = modelNoScale * slideMat * glm::scale(glm::mat4(1.0f), scale);
+            m_Mesh->localMatrix = modelNoScale * slideMat * glm::scale(glm::mat4(1.0f), scale);
             AnimateCollider(modelNoScale * slideMat);
         }
 
