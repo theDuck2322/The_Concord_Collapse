@@ -18,6 +18,16 @@ namespace Crd
             }
         }
 
+        void Button::OnPressed()
+        {
+            m_IsActive = !m_IsActive;
+            if (m_Object)
+            {
+                m_Object->Toggle();
+                // m_IsActive ? m_Object->Activate() : m_Object->Deactivate();
+            }
+        }
+
         void Button::SetMesh(Az::Mesh *mesh) { m_Mesh = mesh; }
         Az::Mesh *Button::GetMesh() { return m_Mesh; }
         void Button::SetOnDuration(float duration) { m_ON_Duration = duration; }

@@ -248,12 +248,6 @@ namespace Crd
 
         m_LogicProcessor.Update();
 
-        auto ElevatorRB = m_PhysicsManager.GetRigidbodyById(ElevatorID);
-        btTransform t = ElevatorRB->getWorldTransform();
-        t.setOrigin(btVector3(0, Az::Timer::GetTime(), 0));
-        ElevatorRB->setWorldTransform(t);
-        ElevatorRB->getMotionState()->setWorldTransform(t);
-
         btVector3 from = Az::ConvertGLMVec3(m_Player.GetHeadPosition());
 
         btVector3 to = Az::ConvertGLMVec3(m_Player.GetForwardRay(8.0f));
@@ -310,15 +304,7 @@ namespace Crd
             glm::mat4_cast(glmRot);
         m_Renderer.AddModel(&m_Sphere, &ballModel);
 
-        m_PhysicsManager.GetRigidbodyById(ElevatorID)->getMotionState()->getWorldTransform(trans);
-
-        pos = trans.getOrigin();
-        // Take the ORIGINAL model matrix
-        glm::mat4 base = m_Base_Elevator.meshes[0].localMatrix;
-        // base[3] = glm::vec4(0, 0, 0, 1);
-
-        glm::mat4 elevatorModel = glm::translate(glm::mat4(1.0f), glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
-        m_Renderer.AddModel(&m_Base_Elevator, &elevatorModel);
+        m_Renderer.AddModel(&m_Base_Elevator);
 
         for (auto &prop : *m_LogicProcessor.GetProps())
         {

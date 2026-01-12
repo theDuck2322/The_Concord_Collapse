@@ -12,6 +12,7 @@ namespace Crd
 
             void Activate() override { m_IsOpen = true; }
             void Deactivate() override { m_IsOpen = false; }
+            void Toggle() override { m_IsOpen = !m_IsOpen; }
 
             void Update(bool firstCheck = false) override;
 

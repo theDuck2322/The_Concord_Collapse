@@ -9,6 +9,7 @@ namespace Crd
         {
         public:
             void Update(bool check = true) override;
+            void OnPressed() override;
         };
     }
 }

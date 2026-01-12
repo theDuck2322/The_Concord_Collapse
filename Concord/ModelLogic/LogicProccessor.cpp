@@ -94,7 +94,7 @@ namespace Crd
             for (auto &[id, ctrls] : m_Controllers)
                 for (auto &ctrl : ctrls)
                     if (ctrl->GetRigidBody() == hitBody)
-                        ctrl->SetActive(!ctrl->IsActive());
+                        ctrl->OnPressed();
         }
 
         Crd::Object::Prop *LogicProcessor::RaycastProp(const btVector3 &from, const btVector3 &to, bool condition)

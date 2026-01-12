@@ -16,6 +16,7 @@ namespace Crd
 
             virtual void SetActive(bool val) { m_IsActive = val; }
             virtual bool IsActive() const { return m_IsActive; }
+            virtual void OnPressed() { m_IsActive = !m_IsActive; }
             virtual void SetParsedInput(Crd::MdIsp::ParsedInput *input) { m_Input = input; }
             virtual Crd::MdIsp::ParsedInput *GetParsedInput() { return m_Input; }
 

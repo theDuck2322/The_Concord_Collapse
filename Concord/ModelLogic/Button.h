@@ -9,6 +9,7 @@ namespace Crd
         {
         public:
             void SetActive(bool val) override;
+            void OnPressed() override;
             void SetMesh(Az::Mesh *mesh);
             Az::Mesh *GetMesh();
             void SetOnDuration(float duration);

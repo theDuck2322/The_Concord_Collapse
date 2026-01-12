@@ -27,10 +27,13 @@ Done:
 	- implement the rest of the functions
 	- EMERGENCY - Refactor the code for model logic because its poor written
 	- implemented mesh collider from simplified model
+	- implement AzPkg asset format for the engine
 
 left to do:
 
-	- implement AzPkg asset format for the engine
+	- Understand and document the model loader and its transform + physics transform and drawing process
+		like how it's supposed to work something like double matrix multiplications and prevention
+		
 
 	- maybe create a structure for when creating a physics object like:
 								- friction
@@ -43,13 +46,13 @@ left to do:
 							   platforms which goes from point a to b
 
 	- make a greybox level which has core mechanics
-	example:
-		Example Vertical Slice Scene
-		One small room
-		One corridor
-		One door locked by a button
-		One physics object (crate)
-		One scripted moment (door opens, sound plays)
+		example:
+			Example Vertical Slice Scene
+			One small room
+			One corridor
+			One door locked by a button
+			One physics object (crate)
+			One scripted moment (door opens, sound plays)
 
 
 

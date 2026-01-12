@@ -19,6 +19,7 @@ namespace Crd
             virtual void SetParsedInput(Crd::MdIsp::ParsedInput *input) { m_Input = input; }
             virtual void Activate() = 0;
             virtual void Deactivate() = 0;
+            virtual void Toggle() = 0;
             virtual void Update(bool firstCheck = false) = 0;
 
             inline void SetRigidBody(btRigidBody *body) { m_RigidBody = body; }
