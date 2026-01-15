@@ -12,7 +12,7 @@ namespace Crd
         namespace Internal
         {
             void PrintInput(const Crd::MdIsp::ParsedInput &inp);
-            std::unique_ptr<Crd::Object::Prop> CreatePickable(Az::Mesh *mesh, Az::physx::PhysicsManager *mng);
+            std::unique_ptr<Crd::Object::Prop> CreatePickable(Az::Mesh *mesh, Az::physx::PhysicsManager *manager);
 
             template <typename T>
             std::unique_ptr<T> CreateController(Az::Mesh *mesh, Crd::MdIsp::ParsedInput &input, Az::physx::PhysicsManager *mgr, bool isDoor = false)

@@ -98,6 +98,8 @@ file(GLOB_RECURSE CONCORD_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Application/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelInspector/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic/Controllers/.*cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic/Targets/.*cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Entity/*.cpp
 )
 
@@ -108,6 +110,8 @@ target_include_directories(Concord PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Application
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelInspector
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic/Controllers
+    ${CMAKE_CURRENT_SOURCE_DIR}/Concord/ModelLogic/Targets
     ${CMAKE_CURRENT_SOURCE_DIR}/Concord/Entity
 )
 

@@ -13,7 +13,7 @@ namespace Crd
 #endif
             }
 
-            std::unique_ptr<Crd::Object::Prop> CreatePickable(Az::Mesh *mesh, Az::physx::PhysicsManager *mng)
+            std::unique_ptr<Crd::Object::Prop> CreatePickable(Az::Mesh *mesh, Az::physx::PhysicsManager *manager)
             {
                 // Save GLB transform
                 glm::mat4 glbTransform = mesh->localMatrix;
@@ -23,8 +23,8 @@ namespace Crd
                 auto prop = std::make_unique<Crd::Object::Prop>();
                 prop->SetMesh(mesh); // this will reset mesh->localMatrix to identity
 
-                size_t id = mng->CreateConvexHullBody(mesh, 1.0f);
-                auto body = mng->GetRigidbodyById(id);
+                size_t id = manager->CreateConvexHullBody(mesh, 1.0f);
+                auto body = manager->GetRigidbodyById(id);
 
                 btTransform tr;
                 tr.setIdentity();
@@ -33,6 +33,9 @@ namespace Crd
 
                 body->setWorldTransform(tr);
                 body->getMotionState()->setWorldTransform(tr);
+
+                // body->setFriction(0.15f);
+                body->setDamping(0.15f, 0.15f);
 
                 prop->SetRigidBody(body);
                 prop->Init();

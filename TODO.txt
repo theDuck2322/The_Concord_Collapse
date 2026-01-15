@@ -31,6 +31,9 @@ Done:
 
 left to do:
 
+	- Make the Model logic object in the same way as props like reseting their transform and
+			using only bullet physics after transform
+
 	- Understand and document the model loader and its transform + physics transform and drawing process
 		like how it's supposed to work something like double matrix multiplications and prevention
 		

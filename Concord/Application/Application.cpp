@@ -123,6 +123,7 @@ namespace Crd
 
         m_DBR.INIT_RENDERER(nullptr, m_Camera3D.GetViewProjectionPtr());
     }
+    Az::Model SkyBox;
 
     ///---------------------------------- Assets loading --------------------------------------------------
     void Application::m_LoadAssets()
@@ -149,6 +150,7 @@ namespace Crd
         m_Base_Elevator.loadFromMemory(bElv);
         m_Coll_Elevator.loadFromMemory(cElv);
 
+        SkyBox.load("Azyris/Assets/sky.glb");
         // m_Base_Elevator.load("Azyris/Assets/Base_Elevator.glb");
         // m_Coll_Elevator.load("Azyris/Assets/Collision_Elevator.glb");
 
